@@ -1,62 +1,51 @@
 package encryption
 
-import enums.Enums
+import fileio.storeKeyPair
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPPublicKeyRing
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.pgpainless.PGPainless
+import org.pgpainless.algorithm.KeyFlag
 import org.pgpainless.algorithm.SymmetricKeyAlgorithm
 import org.pgpainless.encryption_signing.EncryptionOptions
 import org.pgpainless.encryption_signing.EncryptionStream
 import org.pgpainless.encryption_signing.ProducerOptions
 import org.pgpainless.exception.MissingDecryptionMethodException
+import org.pgpainless.key.generation.KeySpec
+import org.pgpainless.key.generation.type.ecc.EllipticCurve
+import org.pgpainless.key.generation.type.ecc.ecdh.ECDH
+import org.pgpainless.key.generation.type.ecc.ecdsa.ECDSA
+import org.pgpainless.key.generation.type.rsa.RSA
 import org.pgpainless.key.generation.type.rsa.RsaLength
 import org.pgpainless.util.Passphrase
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-fun generateKeyPair(passphrase: String, name: String, email: String) {
-    val keyRing: PGPSecretKeyRing = PGPainless.generateKeyRing().simpleRsaKeyRing("$name <$email>", RsaLength._4096)
+
+fun generateKeyPair(passphrase: String, name: String, email: String, length: RsaLength) {
+    val keyRing: PGPSecretKeyRing = PGPainless.buildKeyRing().setPrimaryKey(
+        KeySpec.getBuilder(
+            RSA.withLength(length), KeyFlag.SIGN_DATA, KeyFlag.CERTIFY_OTHER
+        )
+    ).addSubkey(
+        KeySpec.getBuilder(ECDSA.fromCurve(EllipticCurve._P256), KeyFlag.SIGN_DATA)
+    ).addSubkey(
+        KeySpec.getBuilder(
+            ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
+        )
+    ).addUserId(name).addUserId("xmpp:$email").setPassphrase(Passphrase.fromPassword(passphrase)).build()
     val fileName: String = name.trim() + "_" + SimpleDateFormat("yyyyMMdd").format(java.util.Date())
-    storeKeyPair(keyRing, fileName)
+    val privateKey = keyRing.secretKey.encoded
+    storeKeyPair(privateKey, fileName)
 }
 
-fun storeKeyPair(keyRing: PGPSecretKeyRing, fileName: String) {
-
-    val tempFile = File.createTempFile("temp_secret_key", ".asc")
-    tempFile.deleteOnExit()
-
-    val applicationFolder = File(System.getProperty("user.home"), Enums.APP_DIRECTORY.value)
-
-    if (!applicationFolder.exists()) {
-        applicationFolder.mkdirs()
-    }
-
-    val file = File(System.getProperty("user.home") + Enums.APP_DIRECTORY.value + "/$fileName" + ".asc")
-
-
-    try {
-        val inputStream = FileInputStream(tempFile)
-        val outputStream = FileOutputStream(file)
-
-        val buffer = ByteArray(inputStream.available())
-        while (inputStream.read(buffer) != -1) {
-            outputStream.write(buffer)
-        }
-        outputStream.close()
-        inputStream.close()
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
-
-}
 
 fun encryptPrivateKey(keyRing: PGPSecretKeyRing, passphrase: String, outputFile: File): File {
     val tempFile = File.createTempFile("temp_secret_key", ".asc")
@@ -94,7 +83,7 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
 }
 
 
-fun encryptFile(inputFile: File, outputFile: File, publicKey: PGPPublicKeyRing, passphrase: String) {
+fun encryptFile(inputFile: File, outputFile: File, publicKey: PGPPublicKeyRing, passphrase: String): String {
 
     try {
         val passphraseObj: Passphrase = Passphrase.fromPassword(passphrase)
@@ -112,17 +101,18 @@ fun encryptFile(inputFile: File, outputFile: File, publicKey: PGPPublicKeyRing, 
                 input.copyTo(encryption)
             }
         }
+        return "Success!"
 
     } catch (e: IOException) {
-        e.printStackTrace()
+        return "IO Exception Occurred"
     } catch (e: PGPException) {
-        e.printStackTrace()
+        return "PGP Exception Occurred"
     } catch (e: MissingDecryptionMethodException) {
-        e.printStackTrace()
+        return "MissingDecryptionMethod Exception Occurred"
     }
 }
 
-fun packageIntoArchive(sourceDir: java.nio.file.Path, zipFilePath: java.nio.file.Path) {
+fun packageIntoArchive(sourceDir: Path, zipFilePath: Path) {
     val zipOutputStream = ZipOutputStream(FileOutputStream(zipFilePath.toFile()))
     Files.walk(sourceDir).filter { Files.isRegularFile(it) }.forEach { file ->
         val zipEntry = ZipEntry(sourceDir.relativize(file).toString())
