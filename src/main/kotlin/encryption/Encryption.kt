@@ -70,6 +70,10 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
     }
 }
 
+fun decryptDirectory(directoryPath: String,publicKey: String,passphrase: String){
+
+}
+
 
 fun encryptFile(inputFile: File, outputFile: File, publicKey: PGPPublicKeyRing, passphrase: String): String {
 
