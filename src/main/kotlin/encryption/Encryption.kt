@@ -40,23 +40,12 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
         KeySpec.getBuilder(
             ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
         )
-    ).addUserId(name).addUserId("xmpp:$email").setPassphrase(Passphrase.fromPassword(passphrase)).build()
+    ).addUserId("$name <$email>").setPassphrase(Passphrase.fromPassword(passphrase)).build()
     val fileName: String = name.trim() + "_" + SimpleDateFormat("yyyyMMdd").format(java.util.Date())
-    val privateKey = keyRing.secretKey.encoded
+    val privateKey : String = keyRing.secretKey.toString()
     storeKeyPair(privateKey, fileName)
 }
 
-
-fun encryptPrivateKey(keyRing: PGPSecretKeyRing, passphrase: String, outputFile: File): File {
-    val tempFile = File.createTempFile("temp_secret_key", ".asc")
-    tempFile.deleteOnExit()
-
-    FileOutputStream(tempFile).use { outputStream ->
-        keyRing.encode(outputStream)
-    }
-
-    return outputFile
-}
 
 fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: String) {
 
@@ -77,7 +66,6 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
 
 
     } finally {
-        // Cleanup temporary directory
         Files.walk(tempDir).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
     }
 }
