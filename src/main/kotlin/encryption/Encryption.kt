@@ -4,9 +4,12 @@ import fileio.storeKeyPair
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPPublicKeyRing
 import org.bouncycastle.openpgp.PGPSecretKeyRing
+import org.bouncycastle.util.io.Streams
 import org.pgpainless.PGPainless
 import org.pgpainless.algorithm.KeyFlag
 import org.pgpainless.algorithm.SymmetricKeyAlgorithm
+import org.pgpainless.decryption_verification.ConsumerOptions
+import org.pgpainless.decryption_verification.DecryptionStream
 import org.pgpainless.encryption_signing.EncryptionOptions
 import org.pgpainless.encryption_signing.EncryptionStream
 import org.pgpainless.encryption_signing.ProducerOptions
@@ -17,8 +20,11 @@ import org.pgpainless.key.generation.type.ecc.ecdh.ECDH
 import org.pgpainless.key.generation.type.ecc.ecdsa.ECDSA
 import org.pgpainless.key.generation.type.rsa.RSA
 import org.pgpainless.key.generation.type.rsa.RsaLength
+import org.pgpainless.key.protection.SecretKeyRingProtector
 import org.pgpainless.util.Passphrase
+import org.pgpainless.util.Passphrase.fromPassword
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
@@ -42,7 +48,7 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
         KeySpec.getBuilder(
             ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
         )
-    ).addUserId("$name <$email>").setPassphrase(Passphrase.fromPassword(passphrase)).build()
+    ).addUserId("$name <$email>").setPassphrase(fromPassword(passphrase)).build()
     val fileName: String = encode(vaultName.toByteArray())
     val privateKey: String = keyRing.secretKey.toString()
     storeKeyPair(privateKey, fileName)
@@ -72,15 +78,37 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
     }
 }
 
-fun decryptDirectory(directoryPath: String, publicKey: String, passphrase: String) {
+fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphrase: String)  {
+    val directory = Paths.get(directoryPath)
+    val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
+
+    try {
+        val secretKeyProtector = SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
+
+        files.forEach { file ->
+            val decryptedFile = File(file.parent, "${file.nameWithoutExtension}_decrypted.${file.extension}")
+
+            val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
+
+            val encryptedInputStream = FileInputStream(file)
+            val decryptionStream: DecryptionStream =
+                PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
+
+            val outputStream = decryptedFile.outputStream()
+            Streams.pipeAll(decryptionStream, outputStream)
+            decryptionStream.close()
+            outputStream.close()
+        }
+    } catch (e:Exception){
+        println(e.printStackTrace())
+    }
 
 }
-
 
 fun encryptFile(inputFile: File, outputFile: File, publicKey: PGPPublicKeyRing, passphrase: String): String {
 
     try {
-        val passphraseObj: Passphrase = Passphrase.fromPassword(passphrase)
+        val passphraseObj: Passphrase = fromPassword(passphrase)
         val encryptionStream: EncryptionStream =
             PGPainless.encryptAndOrSign().onOutputStream(outputFile.outputStream()).withOptions(
                 ProducerOptions.encrypt(

@@ -1,6 +1,7 @@
 package composables
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Surface
@@ -15,6 +16,10 @@ import androidx.compose.ui.window.Dialog
 fun newVaultForm() {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var dismissed by remember{ mutableStateOf(false) }
+    if (dismissed) {
+        return
+    }
     Dialog(onDismissRequest = {}) {
         Surface {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -30,10 +35,16 @@ fun newVaultForm() {
                     label = { Text("Email") },
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+                Row(modifier = Modifier.padding(top = 10.dp)){
+                    Button(onClick = { }) {
+                        Text("Submit")
+                    }
 
-                Button(onClick = { }) {
-                    Text("Submit")
+                    Button(onClick = {dismissed = true }) {
+                        Text("Cancel")
+                    }
                 }
+
             }
 
         }
