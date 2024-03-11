@@ -24,12 +24,14 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.io.encoding.Base64.Default.encode
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 
-fun generateKeyPair(passphrase: String, name: String, email: String, length: RsaLength) {
+@OptIn(ExperimentalEncodingApi::class)
+fun generateKeyPair(passphrase: String, name: String, email: String, length: RsaLength, vaultName: String) {
     val keyRing: PGPSecretKeyRing = PGPainless.buildKeyRing().setPrimaryKey(
         KeySpec.getBuilder(
             RSA.withLength(length), KeyFlag.SIGN_DATA, KeyFlag.CERTIFY_OTHER
@@ -41,8 +43,8 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
             ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
         )
     ).addUserId("$name <$email>").setPassphrase(Passphrase.fromPassword(passphrase)).build()
-    val fileName: String = name.trim() + "_" + SimpleDateFormat("yyyyMMdd").format(java.util.Date())
-    val privateKey : String = keyRing.secretKey.toString()
+    val fileName: String = encode(vaultName.toByteArray())
+    val privateKey: String = keyRing.secretKey.toString()
     storeKeyPair(privateKey, fileName)
 }
 
@@ -70,7 +72,7 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
     }
 }
 
-fun decryptDirectory(directoryPath: String,publicKey: String,passphrase: String){
+fun decryptDirectory(directoryPath: String, publicKey: String, passphrase: String) {
 
 }
 

@@ -44,7 +44,7 @@ fun core() {
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 actions = {
-                    DropdownList(
+                    dropdownList(
                         dropdownItems = listOf("My Vaults", "Another Option", "Yet Another Option"),
                         selectedItem = remember { mutableStateOf(selectedItem) }
                     )
@@ -65,7 +65,7 @@ fun core() {
 }
 
 @Composable
-fun DropdownList(dropdownItems: List<String>, selectedItem: MutableState<String>) {
+fun dropdownList(dropdownItems: List<String>, selectedItem: MutableState<String>) {
     var expanded by remember { mutableStateOf(false) }
 
     Column {
