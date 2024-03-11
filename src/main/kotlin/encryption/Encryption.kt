@@ -78,7 +78,7 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
     }
 }
 
-fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphrase: String)  {
+fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphrase: String) {
     val directory = Paths.get(directoryPath)
     val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
 
@@ -99,7 +99,7 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
             decryptionStream.close()
             outputStream.close()
         }
-    } catch (e:Exception){
+    } catch (e: Exception) {
         println(e.printStackTrace())
     }
 
