@@ -30,29 +30,24 @@ fun core() {
     MaterialTheme {
         var selectedItem by remember { mutableStateOf("My Vaults") }
 
+        var isDialogOpen by remember { mutableStateOf(false) }
+
         Column {
-            TopAppBar(
-                backgroundColor = Color.Black,
-                contentColor = Color.White,
-                title = {
-                    Image(
-                        painter = BitmapPainter(useResource("vault.png", ::loadImageBitmap)),
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(46.dp)
-                    )
-                    Text("KVault")
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                actions = {
-                    dropdownList(
-                        dropdownItems = listOf("My Vaults", "Another Option", "Yet Another Option"),
-                        selectedItem = remember { mutableStateOf(selectedItem) }
-                    )
-                    IconButton(onClick = { /* Create Vault action */ }) {
-                        Icon(Icons.Filled.Add, contentDescription = "Create Vault")
-                    }
+            TopAppBar(backgroundColor = Color.Black, contentColor = Color.White, title = {
+                Image(
+                    painter = BitmapPainter(useResource("vault.png", ::loadImageBitmap)),
+                    contentDescription = "Logo",
+                    modifier = Modifier.size(46.dp)
+                )
+                Text("KVault")
+            }, modifier = Modifier.align(Alignment.CenterHorizontally), actions = {
+                dropdownList(dropdownItems = listOf("My Vaults", "Another Option", "Yet Another Option"),
+                    selectedItem = remember { mutableStateOf(selectedItem) })
+                IconButton(onClick = {isDialogOpen = !isDialogOpen}) {
+                    Icon(Icons.Filled.Add, contentDescription = "Create Vault")
                 }
-            )
+            })
+            if (isDialogOpen) newVaultForm()
             Column(
                 modifier = Modifier.padding(16.dp).fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -74,9 +69,7 @@ fun dropdownList(dropdownItems: List<String>, selectedItem: MutableState<String>
         }
 
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth()
         ) {
             dropdownItems.forEach { item ->
                 DropdownMenuItem(onClick = {

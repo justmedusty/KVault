@@ -43,7 +43,7 @@ fun storeKeyPair(privateKey: String, fileName: String) {
 }
 
 fun retrieveKeyPair(fileName: String): PGPSecretKeyRing? {
-    val file: File = File(System.getProperty(Enums.HOME_DIR.value), Enums.APP_DIRECTORY.value + "/$fileName")
+    val file: File = File(System.getProperty(Enums.HOME_DIR.value) + "/${Enums.APP_DIRECTORY.value}/$fileName")
     try {
         if (file.exists()) {
             val privateKey: ByteArray = Files.readAllBytes(file.toPath())
