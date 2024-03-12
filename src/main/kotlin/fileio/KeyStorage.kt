@@ -2,14 +2,15 @@ package fileio
 
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
+import org.bouncycastle.openpgp.PGPPublicKeyRing
 import org.bouncycastle.openpgp.PGPSecretKeyRing
+import org.bouncycastle.util.Arrays
 import org.pgpainless.PGPainless
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
-import java.util.zip.ZipOutputStream
 
 fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
     val tempFile = File.createTempFile("temp_secret_key", ".asc")
@@ -19,7 +20,8 @@ fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
             output.write(privateKey)
         }
 
-        val applicationFolder = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/${Enums.KEY_DIR.value}")
+        val applicationFolder =
+            File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/${Enums.KEY_DIR.value}")
 
         if (!applicationFolder.exists()) {
             applicationFolder.mkdirs()
@@ -37,7 +39,7 @@ fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
             }
         }
 
-        tempFile.delete()
+        tempFile.run { delete() }
     } catch (e: IOException) {
         e.printStackTrace()
     }
@@ -45,20 +47,22 @@ fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
 }
 
 fun retrieveKeyPair(vaultName: String): PGPSecretKeyRing? {
-    val file: File = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR + "/${vaultName}.asc")
+    val file: File =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR.value + "/${vaultName}.asc")
     try {
-        if (file.exists()) {
+        return if (!file.exists()) {
+            null
+        } else {
             val privateKey: ByteArray = Files.readAllBytes(file.toPath())
-            val privateKeyObj: PGPSecretKeyRing? = PGPainless.readKeyRing().secretKeyRing(privateKey)
-            if (privateKeyObj != null) {
-                return privateKeyObj
-            }
+            PGPainless.readKeyRing().secretKeyRing(privateKey)
         }
     } catch (e: PGPException) {
-        println(e.printStackTrace())
+        println("Incorrect passphrase")
+        return null
+    } catch (e: Exception) {
+        println("Error reading key pair: ${e.message}")
         return null
     }
-    return null
 }
 
 fun listAllKeys(): MutableList<String> {
