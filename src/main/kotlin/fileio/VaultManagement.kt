@@ -10,26 +10,43 @@ import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
 
 
+
 fun createVault(vaultName: String, username: String, password: String, email: String, rsaLength: RsaLength): Boolean {
     val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName".trim())
-    if (!directory.exists()) {
 
+    if (!directory.exists()) {
         val created = directory.mkdirs()
+
         if (created) {
             generateKeyPair(password, username, email, rsaLength, vaultName)
             val secretKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
+
             try {
-                if (secretKey != null) {
-                    //this might not work pytting this comment here in case it doenst and i need to find this line
-                    encryptDirectory(directory.toPath().toString(), secretKey.publicKey.toString(), password)
-                } else return false
+                when (secretKey) {
+                    null -> {
+                        println("Failed to retrieve secret key.")
+                        return false
+                    }
+                    else -> {
+                        val encryptedDirectory = File(directory, "$vaultName.gpg")
+                        encryptDirectory(directory.toPath().toString(), secretKey.secretKey.toString(), password)
+                        println(directory.toPath())
+                        println(directory.toPath().toString())
+                        return true
+                    }
+                }
             } catch (e: Exception) {
-                println("ERROR ENCRYPTING DIRECTORY")
+                println("ERROR ENCRYPTING DIRECTORY: ${e.message}")
+                return false
             }
+        } else {
+            println("Failed to create directory.")
+            return false
         }
-        return created
+    } else {
+        println("Vault directory already exists.")
+        return false
     }
-    return false
 }
 
 

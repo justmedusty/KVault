@@ -32,11 +32,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.io.encoding.Base64.Default.encode
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 
-@OptIn(ExperimentalEncodingApi::class)
 fun generateKeyPair(passphrase: String, name: String, email: String, length: RsaLength, vaultName: String) {
     val keyRing: PGPSecretKeyRing = PGPainless.buildKeyRing().setPrimaryKey(
         KeySpec.getBuilder(
@@ -49,7 +46,7 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
             ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
         )
     ).addUserId("$name <$email>").setPassphrase(fromPassword(passphrase)).build()
-    val fileName: String = encode(vaultName.toByteArray())
+    val fileName: String = vaultName
     val privateKey: String = keyRing.secretKey.toString()
     storeKeyPair(privateKey, fileName)
 }
@@ -66,7 +63,7 @@ fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: Strin
         if (publicKeyObj != null) {
 
             files.forEach { file ->
-                val encryptedFile = tempDir.resolve(file.name)
+                val encryptedFile = tempDir.resolve("${file.name}.gpg")
                 encryptFile(file, encryptedFile.toFile(), publicKeyObj, passphrase)
                 packageIntoArchive(tempDir, Paths.get("encrypted_files.zip"))
             }
