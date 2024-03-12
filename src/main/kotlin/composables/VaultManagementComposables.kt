@@ -16,6 +16,7 @@ import androidx.compose.ui.window.Dialog
 fun newVaultForm() {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var vaultName by remember { mutableStateOf("") }
     var dismissed by remember{ mutableStateOf(false) }
     if (dismissed) {
         return
@@ -23,6 +24,12 @@ fun newVaultForm() {
     Dialog(onDismissRequest = {}) {
         Surface {
             Column(modifier = Modifier.padding(16.dp)) {
+                TextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
                 TextField(
                     value = name,
                     onValueChange = { name = it },

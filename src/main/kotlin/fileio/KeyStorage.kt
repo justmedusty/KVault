@@ -10,7 +10,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 
-fun storeKeyPair(privateKey: String, fileName: String) {
+fun storeKeyPair(privateKey: String, vaultName: String) {
 
     val tempFile = File.createTempFile("temp_secret_key", ".asc")
     Files.write(tempFile.toPath(), privateKey.toByteArray())
@@ -22,7 +22,7 @@ fun storeKeyPair(privateKey: String, fileName: String) {
         applicationFolder.mkdirs()
     }
 
-    val file = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/$fileName" + ".asc")
+    val file = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/$vaultName.asc")
 
 
     try {
@@ -42,8 +42,8 @@ fun storeKeyPair(privateKey: String, fileName: String) {
 
 }
 
-fun retrieveKeyPair(fileName: String): PGPSecretKeyRing? {
-    val file: File = File(System.getProperty(Enums.HOME_DIR.value) + "/${Enums.APP_DIRECTORY.value}/$fileName")
+fun retrieveKeyPair(vaultName: String): PGPSecretKeyRing? {
+    val file: File = File(System.getProperty(Enums.HOME_DIR.value) + "/${Enums.APP_DIRECTORY.value}/$vaultName.asc")
     try {
         if (file.exists()) {
             val privateKey: ByteArray = Files.readAllBytes(file.toPath())

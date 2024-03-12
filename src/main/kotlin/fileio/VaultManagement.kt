@@ -4,6 +4,7 @@ import encryption.decryptDirectory
 import encryption.encryptDirectory
 import encryption.generateKeyPair
 import enums.Enums
+import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
@@ -20,7 +21,7 @@ fun createVault(vaultName: String, username: String, password: String, email: St
             try {
                 if (secretKey != null) {
                     //this might not work pytting this comment here in case it doenst and i need to find this line
-                    encryptDirectory(directory.toString(), secretKey.publicKey.toString(), password)
+                    encryptDirectory(directory.toPath().toString(), secretKey.publicKey.toString(), password)
                 } else return false
             } catch (e: Exception) {
                 println("ERROR ENCRYPTING DIRECTORY")
@@ -32,7 +33,7 @@ fun createVault(vaultName: String, username: String, password: String, email: St
 }
 
 
-fun openVault(vaultName: String, password: String): List<String>{
+fun openVault(vaultName: String, password: String): List<String> {
     val fileList = mutableListOf<String>()
     val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
     val privateKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
@@ -50,4 +51,34 @@ fun openVault(vaultName: String, password: String): List<String>{
     }
     return emptyList()
 
+}
+
+fun closeVault(vaultName: String, password: String): Boolean {
+    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
+    val privateKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
+    try {
+        if (privateKey != null) {
+            encryptDirectory(vault.toPath().toString(), privateKey.publicKey.toString(), password)
+            return true
+        }
+    } catch (e: PGPException) {
+        println(e.message)
+        return false
+    }
+
+    return false
+}
+
+fun isDirectoryEncrypted(vaultName: String): Boolean {
+    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
+    val files = vault.listFiles()
+
+
+    files?.forEach { file ->
+        if (file.isFile && file.extension != "gpg") {
+            return false
+        }
+    }
+
+    return true
 }
