@@ -12,7 +12,7 @@ import java.io.File
 
 
 fun createVault(vaultName: String, username: String, password: String, email: String, rsaLength: RsaLength): Boolean {
-    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName".trim())
+    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value+ Enums.VAULTS_DIR.value + "/$vaultName".trim())
 
     if (!directory.exists()) {
         val created = directory.mkdirs()

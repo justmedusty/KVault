@@ -10,32 +10,33 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 
-fun storeKeyPair(privateKey: String, vaultName: String) {
-
+fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
     val tempFile = File.createTempFile("temp_secret_key", ".asc")
-    Files.write(tempFile.toPath(), privateKey.toByteArray())
-
-    val applicationFolder =
-        File(System.getProperty(Enums.HOME_DIR.value), Enums.APP_DIRECTORY.value + "/${Enums.KEY_DIR.value}")
-
-    if (!applicationFolder.exists()) {
-        applicationFolder.mkdirs()
-    }
-
-    val file = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/$vaultName.asc")
-
 
     try {
-        val inputStream = FileInputStream(tempFile)
-        val outputStream = FileOutputStream(file)
-
-        val buffer = ByteArray(inputStream.available())
-        while (inputStream.read(buffer) != -1) {
-            outputStream.write(buffer)
+        FileOutputStream(tempFile).use { output ->
+            output.write(privateKey)
         }
-        outputStream.close()
-        inputStream.close()
-        with(tempFile) { delete() }
+
+        val applicationFolder = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/${Enums.KEY_DIR.value}")
+
+        if (!applicationFolder.exists()) {
+            applicationFolder.mkdirs()
+        }
+
+        val file = File(applicationFolder, "$vaultName.asc")
+
+        FileInputStream(tempFile).use { inputStream ->
+            FileOutputStream(file).use { outputStream ->
+                val buffer = ByteArray(1024)
+                var length: Int
+                while (inputStream.read(buffer).also { length = it } > 0) {
+                    outputStream.write(buffer, 0, length)
+                }
+            }
+        }
+
+        tempFile.delete()
     } catch (e: IOException) {
         e.printStackTrace()
     }
@@ -43,7 +44,7 @@ fun storeKeyPair(privateKey: String, vaultName: String) {
 }
 
 fun retrieveKeyPair(vaultName: String): PGPSecretKeyRing? {
-    val file: File = File(System.getProperty(Enums.HOME_DIR.value) + "/${Enums.APP_DIRECTORY.value}/$vaultName.asc")
+    val file: File = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR + "/${vaultName}.asc")
     try {
         if (file.exists()) {
             val privateKey: ByteArray = Files.readAllBytes(file.toPath())

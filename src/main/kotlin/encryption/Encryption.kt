@@ -47,7 +47,7 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
         )
     ).addUserId("$name <$email>").setPassphrase(fromPassword(passphrase)).build()
     val fileName: String = vaultName
-    val privateKey: String = keyRing.secretKey.toString()
+    val privateKey: ByteArray = keyRing.secretKey.encoded
     storeKeyPair(privateKey, fileName)
 }
 
