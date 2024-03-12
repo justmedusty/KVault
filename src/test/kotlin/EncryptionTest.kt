@@ -2,6 +2,7 @@ import encryption.encryptFile
 import fileio.createVault
 import fileio.isDirectoryEncrypted
 import fileio.retrieveKeyPair
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.pgpainless.key.generation.type.rsa.RsaLength
@@ -11,10 +12,10 @@ class EncryptionTest {
 
     @Test
     fun createVaultWithNewKeyPair() {
-        createVault("TestVault", "dustyn", "1234", "dustyn@dustyn.com", RsaLength._4096)
-        assertTrue(isDirectoryEncrypted("TestVault"))
+        createVault("TestVault3", "dusty", "12345678", "dustyn@dustyn.com", RsaLength._4096)
+        assertTrue(isDirectoryEncrypted("TestVault2"))
     }
-    /*
+/*
     @Test
     fun testEncryptionSuccess() {
         val inputFile = File("input.txt")

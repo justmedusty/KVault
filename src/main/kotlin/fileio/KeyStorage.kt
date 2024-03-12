@@ -9,6 +9,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
+import java.util.zip.ZipOutputStream
 
 fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
     val tempFile = File.createTempFile("temp_secret_key", ".asc")
