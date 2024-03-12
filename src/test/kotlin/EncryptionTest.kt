@@ -1,3 +1,4 @@
+import encryption.encryptDirectory
 import encryption.encryptFileStream
 import enums.Enums
 import fileio.createVault
@@ -11,9 +12,12 @@ import java.io.File
 
 class EncryptionTest {
     private val testFolder =
-        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test.txt")
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault")
     private val outputFile =
-        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test3.txt")
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test.gpg")
+    private val testFile =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test.txt")
+
 
     @Test
     fun createVaultWithNewKeyPair() {
@@ -29,7 +33,7 @@ class EncryptionTest {
         val passphrase = "12345678"
         assertNotNull(privateKey)
         if (privateKey != null) {
-            encryptFileStream(privateKey, fileToEncrypt.inputStream(), outputFile.outputStream(),passphrase)
+            encryptDirectory(testFolder.toString(), privateKey, passphrase)
             assertNotNull(privateKey)
             assertTrue(isDirectoryEncrypted("TestVault"))
 
@@ -38,7 +42,19 @@ class EncryptionTest {
 
     }
 
+    @Test
+    fun testEncryptionFile() {
+        val privateKey = retrieveKeyPair("TestVault")
+        testFolder.mkdirs()
+        val fileToEncrypt = testFile
+        val passphrase = "12345678"
+        assertNotNull(privateKey)
+        if (privateKey != null) {
+            encryptFileStream(privateKey, testFile.inputStream(), outputFile.outputStream(), passphrase)
+            assertNotNull(privateKey)
+        }
 
+    }
 }/*
         @Test
         fun testEncryptionWithInvalidPublicKey() {
