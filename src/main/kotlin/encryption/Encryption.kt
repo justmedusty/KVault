@@ -13,6 +13,7 @@ import org.pgpainless.decryption_verification.DecryptionStream
 import org.pgpainless.encryption_signing.EncryptionOptions
 import org.pgpainless.encryption_signing.EncryptionStream
 import org.pgpainless.encryption_signing.ProducerOptions
+import org.pgpainless.encryption_signing.SigningOptions
 import org.pgpainless.exception.MissingDecryptionMethodException
 import org.pgpainless.key.generation.KeySpec
 import org.pgpainless.key.generation.type.ecc.EllipticCurve
@@ -49,24 +50,20 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
 }
 
 
-fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: String) {
-
-    val directory = Paths.get(directoryPath)
+fun encryptDirectory(directoryPath: String, publicKey: String, passphrase: String, vaultName: String) {
+    val directory = Paths.get(directoryPath).toAbsolutePath()
     val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
-    val tempDir = Files.createTempDirectory("encrypted_files")
 
     try {
-
         files.forEach { file ->
-            val encryptedFile = tempDir.resolve("${file.name}.gpg")
-            encryptFile(file, encryptedFile.toFile(), publicKey, passphrase)
-            packageIntoArchive(tempDir, Paths.get("encrypted_files.zip"))
+            val encryptedFilePath = Paths.get(directoryPath, "${file.name}.gpg").toAbsolutePath().toString()
+            encryptFile(file, File(encryptedFilePath), publicKey, passphrase)
+            packageIntoArchive(directory, directory, file)
         }
-
-
-    } finally {
-        Files.walk(tempDir).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
+    } catch (e: Exception) {
+        println("Error encrypting files: ${e.message}")
     }
+
 }
 
 fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphrase: String) {
@@ -96,61 +93,92 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
 
 }
 
-fun encryptFile(inputFile: File, outputFile: File, publicKey: String, passphrase: String): String {
-
+fun encryptFileStream(
+    privateKey: PGPSecretKeyRing, inputStream: InputStream, outputStream: OutputStream, passphrase: String
+) {
     try {
-        // Read the public key from the string
-        val publicKeyObj: PGPPublicKeyRing = PGPainless.readKeyRing().publicKeyRing(publicKey) ?: return "Invalid public key"
+        SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
+        val publicKeyRing = PGPainless.extractCertificate(privateKey)
+        val publicKey = PGPPublicKeyRing.insertPublicKey(publicKeyRing, privateKey.publicKey)
+        val encryptionOptions = EncryptionOptions().addRecipient(publicKey).addPassphrase(fromPassword(passphrase))
 
-        // Convert passphrase to Passphrase object
+        val producerOptions = ProducerOptions.encrypt(encryptionOptions)
+
+        val encryptionStream: EncryptionStream =
+            PGPainless.encryptAndOrSign().onOutputStream(outputStream).withOptions(producerOptions)
+
+        Streams.pipeAll(inputStream, outputStream)
+        encryptionStream.close()
+
+
+    } catch (e: Exception) {
+        println("Error encrypting file: ${e.message}")
+    } finally {
+        inputStream.close()
+        outputStream.close()
+    }
+}
+
+fun encryptFile(inputFile: File, outputFile: File, publicKey: String, passphrase: String): String {
+    var result = ""
+    try {
+
+        if (!outputFile.exists() && !outputFile.createNewFile()) {
+            throw Exception()
+        }
+        val publicKeyObj: PGPPublicKeyRing = PGPainless.readKeyRing().publicKeyRing(publicKey) ?: throw Exception()
+
         val passphraseObj: Passphrase = fromPassword(passphrase)
 
-        // Prepare encryption options
-        val encryptionOptions: EncryptionOptions = EncryptionOptions()
-            .addRecipient(publicKeyObj)
-            .addPassphrase(passphraseObj)
-            .overrideEncryptionAlgorithm(SymmetricKeyAlgorithm.AES_192)
+        val encryptionOptions: EncryptionOptions =
+            EncryptionOptions().addRecipient(publicKeyObj).overrideEncryptionAlgorithm(SymmetricKeyAlgorithm.AES_192)
         val encryptedContent = PGPainless.encryptAndOrSign().onOutputStream(outputFile.outputStream()).withOptions(
-            ProducerOptions.signAndEncrypt(encryptionOptions,null))
+            ProducerOptions.signAndEncrypt(encryptionOptions, SigningOptions())
+        )
 
         if (!outputFile.exists()) {
             outputFile.createNewFile()
         }
-
-        // Encrypt the content
         encryptedContent.use { encryptionStream ->
             inputFile.inputStream().use { inputStream ->
                 if (encryptionStream != null) {
                     inputStream.copyTo(encryptionStream)
+                    result = "Success!"
                 }
             }
         }
 
-        return "Success!"
 
     } catch (e: IOException) {
-        return e.localizedMessage
+        result = e.localizedMessage
     } catch (e: PGPException) {
-        return e.message.toString()
+        result = e.message.toString()
     } catch (e: MissingDecryptionMethodException) {
-        return e.message.toString()
+        result = e.message.toString()
     } catch (e: Exception) {
-        return e.message.toString()
+        result = e.message.toString()
     }
+
+    return result
 }
 
-fun packageIntoArchive(sourceDir: Path, zipFilePath: Path) {
+fun packageIntoArchive(sourceDir: Path, zipFilePath: Path, file: File?) {
+    var result = ""
     try {
         val zipOutputStream = ZipOutputStream(FileOutputStream(zipFilePath.toFile()))
         Files.walk(sourceDir).filter { Files.isRegularFile(it) }.forEach { file ->
             val zipEntry = ZipEntry(sourceDir.relativize(file).toString())
             zipOutputStream.putNextEntry(zipEntry)
-            Files.copy(file, zipOutputStream)
+            if (file != null) {
+                Files.copy(file, zipOutputStream)
+            }
             zipOutputStream.closeEntry()
         }
         zipOutputStream.close()
+        result = "Success!"
     } catch (e: Exception) {
-        println(e.message.toString())
+        result = e.message.toString()
     }
 
+    println(result)
 }

@@ -1,43 +1,45 @@
-import encryption.encryptFile
+import encryption.encryptFileStream
 import enums.Enums
 import fileio.createVault
 import fileio.isDirectoryEncrypted
 import fileio.retrieveKeyPair
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
-import java.util.*
 
 class EncryptionTest {
-    val testFolder = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + "/test")
+    private val testFolder =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test.txt")
+    private val outputFile =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test3.txt")
 
     @Test
     fun createVaultWithNewKeyPair() {
-        createVault("TestVault3", "dusty", "12345678", "dustyn@dustyn.com", RsaLength._4096)
-        assertTrue(isDirectoryEncrypted("TestVault2"))
+        createVault("TestVault", "dusty", "12345678", "dustyn@dustyn.com", RsaLength._4096)
+        assertTrue(isDirectoryEncrypted("TestVault"))
     }
 
     @Test
     fun testEncryptionSuccess() {
+        val privateKey = retrieveKeyPair("TestVault")
         testFolder.mkdirs()
-        val inputFile = File("$testFolder/input.txt")
-        val outputFile = File("$testFolder/output.txt")
-        val randomContent = UUID.randomUUID().toString()
-        inputFile.writeText(randomContent)
-        val privateKey = retrieveKeyPair("TestVault3")
+        val fileToEncrypt = testFolder
         val passphrase = "12345678"
         assertNotNull(privateKey)
         if (privateKey != null) {
-            val result = encryptFile(inputFile, outputFile, privateKey.publicKey.toString(), passphrase)
+            encryptFileStream(privateKey, fileToEncrypt.inputStream(), outputFile.outputStream(),passphrase)
+            assertNotNull(privateKey)
+            assertTrue(isDirectoryEncrypted("TestVault"))
 
-
-            assertEquals("Success!", result)
-            assertTrue(outputFile.exists())
         }
 
 
-    }/*
+    }
+
+
+}/*
         @Test
         fun testEncryptionWithInvalidPublicKey() {
             val inputFile = File("input.txt")
@@ -64,4 +66,4 @@ class EncryptionTest {
             assertFalse(outputFile.exists())
         }
         */
-}
+

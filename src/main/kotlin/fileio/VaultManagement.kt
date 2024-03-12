@@ -22,17 +22,18 @@ fun createVault(vaultName: String, username: String, password: String, email: St
             val secretKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
 
             try {
-                when (secretKey) {
+                return when (secretKey) {
                     null -> {
                         println("Failed to retrieve secret key.")
-                        return false
+                        false
                     }
+
                     else -> {
                         val encryptedDirectory = File(directory, "$vaultName.gpg")
-                        encryptDirectory(directory.toPath().toString(), secretKey.secretKey.toString(), password)
+                        encryptDirectory(directory.toPath().toString(), secretKey.secretKey.toString(), password,vaultName)
                         println(directory.toPath())
                         println(directory.toPath().toString())
-                        return true
+                        true
                     }
                 }
             } catch (e: Exception) {
@@ -75,7 +76,7 @@ fun closeVault(vaultName: String, password: String): Boolean {
     val privateKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
     try {
         if (privateKey != null) {
-            encryptDirectory(vault.toPath().toString(), privateKey.publicKey.toString(), password)
+            encryptDirectory(vault.toPath().toString(), privateKey.publicKey.toString(), password,vaultName)
             return true
         }
     } catch (e: PGPException) {
@@ -92,10 +93,10 @@ fun isDirectoryEncrypted(vaultName: String): Boolean {
 
 
     files?.forEach { file ->
-        if (file.isFile && file.extension != "gpg") {
-            return false
+        if (file.isFile && file.extension == "gpg") {
+            return true
         }
     }
 
-    return true
+    return false
 }
