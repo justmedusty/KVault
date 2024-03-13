@@ -27,10 +27,11 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 
-fun generateKeyPair(passphrase: String, name: String, email: String, length: RsaLength, vaultName: String) {
+fun generateKeyPair(passphrase: String, name: String, email: String, vaultName: String) {
+
     val keyRing: PGPSecretKeyRing = PGPainless.buildKeyRing().setPrimaryKey(
         KeySpec.getBuilder(
-            RSA.withLength(length), KeyFlag.SIGN_DATA, KeyFlag.CERTIFY_OTHER
+            RSA.withLength(RsaLength._8192), KeyFlag.SIGN_DATA, KeyFlag.CERTIFY_OTHER
         )
     ).addSubkey(
         KeySpec.getBuilder(ECDSA.fromCurve(EllipticCurve._P256), KeyFlag.SIGN_DATA)
@@ -39,6 +40,7 @@ fun generateKeyPair(passphrase: String, name: String, email: String, length: Rsa
             ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
         )
     ).addUserId("$name <$email>").setPassphrase(fromPassword(passphrase)).build()
+
     val fileName: String = vaultName
     val privateKey: ByteArray = keyRing.encoded
     storeKeyPair(privateKey, fileName)
@@ -86,7 +88,9 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
                 decryptionStream.close()
                 outputStream.close()
                 try {
-                    file.delete()
+                    with(file) {
+                        delete()
+                    }
                 } catch (e: Exception) {
                     println(e.message)
                 }
@@ -125,23 +129,24 @@ fun encryptFileStream(
     }
 }
 
-fun packageIntoArchive(sourceDir: Path, zipFilePath: Path, file: File?) {
-    var result: String
-    try {
-        val zipOutputStream = ZipOutputStream(FileOutputStream(zipFilePath.toFile()))
-        Files.walk(sourceDir).filter { Files.isRegularFile(it) }.forEach {
-            val zipEntry = ZipEntry(sourceDir.relativize(it).toString())
-            zipOutputStream.putNextEntry(zipEntry)
-            if (it != null) {
-                Files.copy(it, zipOutputStream)
-            }
-            zipOutputStream.closeEntry()
+fun createZipFile(files: List<File>, destinationPath: String) {
+    val zipOutputStream = ZipOutputStream(FileOutputStream(destinationPath))
+
+    for (file in files) {
+        val zipEntry = ZipEntry(file.name)
+        zipOutputStream.putNextEntry(zipEntry)
+
+        val fileInputStream = file.inputStream()
+        val buffer = ByteArray(1024)
+        var length: Int
+
+        while (fileInputStream.read(buffer).also { length = it } > 0) {
+            zipOutputStream.write(buffer, 0, length)
         }
-        zipOutputStream.close()
-        result = "Success!"
-    } catch (e: Exception) {
-        result = e.message.toString()
+
+        fileInputStream.close()
+        zipOutputStream.closeEntry()
     }
 
-    println(result)
+    zipOutputStream.close()
 }

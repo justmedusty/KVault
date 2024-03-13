@@ -8,9 +8,11 @@ import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
+import kotlin.io.path.isDirectory
+import kotlin.io.path.name
 
 
-fun createVault(vaultName: String, username: String, password: String, email: String, rsaLength: RsaLength): Boolean {
+fun createVault(vaultName: String, username: String, password: String, email: String): Boolean {
     val directory =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName".trim())
 
@@ -18,8 +20,9 @@ fun createVault(vaultName: String, username: String, password: String, email: St
         val created = directory.mkdirs()
 
         if (created) {
-            generateKeyPair(password, username, email, rsaLength, vaultName)
-            val secretKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
+            generateKeyPair(password, username, email, vaultName)
+
+            val secretKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
 
             try {
                 return when (secretKey) {
@@ -29,7 +32,6 @@ fun createVault(vaultName: String, username: String, password: String, email: St
                     }
 
                     else -> {
-                        val encryptedDirectory = File(directory, "$vaultName.gpg")
                         encryptDirectory(directory.toPath().toString(), secretKey, password)
                         println(directory.toPath())
                         println(directory.toPath().toString())
@@ -50,6 +52,20 @@ fun createVault(vaultName: String, username: String, password: String, email: St
     }
 }
 
+fun listAllVaults(): List<String> {
+    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value +Enums.VAULTS_DIR.value)
+    val vaultList = mutableListOf<String>()
+
+    for (file in directory.listFiles()!!) {
+        if (file.isDirectory()) {
+            vaultList.add(file.name)
+        }
+    }
+    if (vaultList.isEmpty()){
+        vaultList.add("You have no vaults")
+    }
+    return vaultList
+}
 
 fun openVault(vaultName: String, password: String): List<String> {
     val fileList = mutableListOf<String>()

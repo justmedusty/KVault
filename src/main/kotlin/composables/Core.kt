@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
+import fileio.listAllVaults
 
 @Composable
 @Preview
@@ -41,9 +42,11 @@ fun core() {
                 )
                 Text("KVault")
             }, modifier = Modifier.align(Alignment.CenterHorizontally), actions = {
-                dropdownList(dropdownItems = listOf("My Vaults", "Another Option", "Yet Another Option"),
-                    selectedItem = remember { mutableStateOf(selectedItem) })
-                IconButton(onClick = {isDialogOpen = !isDialogOpen}) {
+                dropdownList(dropdownItems = listAllVaults(),
+                    selectedItem = remember { mutableStateOf(selectedItem)
+                    })
+                IconButton(onClick = { isDialogOpen = !isDialogOpen
+                }) {
                     Icon(Icons.Filled.Add, contentDescription = "Create Vault")
                 }
             })
@@ -53,7 +56,7 @@ fun core() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Your application content goes here")
+                Text("Open Or Create A Vault To Get Started")
             }
         }
     }
