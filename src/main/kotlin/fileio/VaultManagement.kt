@@ -88,22 +88,16 @@ fun closeVault(vaultName: String, password: String): Boolean {
 }
 
 fun isDirectoryEncrypted(vaultName: String): Boolean {
-    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
-    val files = vault.listFiles()
-    files?.forEach { file ->
-        println(file.name)
-    }
-    val list = mutableListOf<Boolean>()
+    val vault =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    val files: List<File>? = vault.listFiles()?.toList()
 
-
-    files?.forEach { file ->
-        if (file.isFile) {
-            if (file.name.contains( ".gpg")) {
-                list.add(true)
-            } else list.add(false)
-
+    if (files != null) {
+        for (file in files) {
+            if (!file.isDirectory && !file.name.endsWith(".gpg")) {
+                return false
+            }
         }
     }
-
-    return list.all { true }
+    return true
 }

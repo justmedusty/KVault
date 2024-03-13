@@ -30,7 +30,7 @@ class EncryptionTest {
     }
 
     @Test
-    fun testEncryptionDirSuccess() {
+    fun testEncryptionDir() {
         val privateKey = retrieveKeyPair("TestVault")
         testFolder.mkdirs()
         val fileToEncrypt = testFolder
