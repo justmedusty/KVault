@@ -63,22 +63,17 @@ class EncryptionTest {
     fun decryptDirectory() {
         val folder = testFolder.toPath().toString()
         if (privateKey != null) {
-
             decryptDirectory(folder, privateKey, passphrase)
-
         }
-        assertTrue(!isDirectoryEncrypted(folder))
+        assertTrue(!isDirectoryEncrypted("TestVault"))
 
     }
 
     @Test
-    fun listAllKeysTest(){
+    fun listAllKeysTest() {
         val list = listAllKeys()
         assertNotNull(list)
     }
-
-
-
 
 
     /*
