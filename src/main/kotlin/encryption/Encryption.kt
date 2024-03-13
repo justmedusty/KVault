@@ -69,19 +69,23 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
         val secretKeyProtector = SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
 
         files.forEach { file ->
-            if (file.extension == ".gpg") {
-                val decryptedFile = File(file.parent, file.name.removeSuffix(".gpg"))
+            val decryptedFile = File(file.parent, file.nameWithoutExtension)
 
-                val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
 
-                val encryptedInputStream = FileInputStream(file)
-                val decryptionStream: DecryptionStream =
-                    PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
+            val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
 
-                val outputStream = decryptedFile.outputStream()
-                Streams.pipeAll(decryptionStream, outputStream)
-                decryptionStream.close()
-                outputStream.close()
+            val encryptedInputStream = FileInputStream(file)
+            val decryptionStream: DecryptionStream =
+                PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
+
+            val outputStream = decryptedFile.outputStream()
+            Streams.pipeAll(decryptionStream, outputStream)
+            decryptionStream.close()
+            outputStream.close()
+            try{
+                file.delete()
+            }catch (e : Exception){
+                println(e.message)
             }
 
         }
@@ -117,7 +121,7 @@ fun encryptFileStream(
 }
 
 fun packageIntoArchive(sourceDir: Path, zipFilePath: Path, file: File?) {
-    var result = ""
+    var result: String
     try {
         val zipOutputStream = ZipOutputStream(FileOutputStream(zipFilePath.toFile()))
         Files.walk(sourceDir).filter { Files.isRegularFile(it) }.forEach {

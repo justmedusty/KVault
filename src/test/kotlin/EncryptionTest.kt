@@ -4,6 +4,7 @@ import encryption.encryptFileStream
 import enums.Enums
 import fileio.createVault
 import fileio.isDirectoryEncrypted
+import fileio.listAllKeys
 import fileio.retrieveKeyPair
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -64,10 +65,23 @@ class EncryptionTest {
         if (privateKey != null) {
 
             decryptDirectory(folder, privateKey, passphrase)
-            assertTrue(!isDirectoryEncrypted(folder))
 
         }
-    }/*
+        assertTrue(!isDirectoryEncrypted(folder))
+
+    }
+
+    @Test
+    fun listAllKeysTest(){
+        val list = listAllKeys()
+        assertNotNull(list)
+    }
+
+
+
+
+
+    /*
         @Test
         fun testEncryptionWithInvalidPublicKey() {
             val inputFile = File("input.txt")

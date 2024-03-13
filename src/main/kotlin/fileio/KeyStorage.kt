@@ -67,8 +67,7 @@ fun retrieveKeyPair(vaultName: String): PGPSecretKeyRing? {
 
 fun listAllKeys(): MutableList<String> {
     val directoryPath = File(
-        System.getProperty(Enums.HOME_DIR.value + "/" + Enums.APP_DIRECTORY.value + "/${Enums.KEY_DIR.value}")
-    )
+        System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR.value)
     val fileList = mutableListOf<String>()
     if (directoryPath.exists() && directoryPath.isDirectory()) {
         directoryPath.walkTopDown().forEach {
