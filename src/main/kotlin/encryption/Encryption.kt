@@ -18,7 +18,6 @@ import org.pgpainless.key.generation.type.ecc.ecdsa.ECDSA
 import org.pgpainless.key.generation.type.rsa.RSA
 import org.pgpainless.key.generation.type.rsa.RsaLength
 import org.pgpainless.key.protection.SecretKeyRingProtector
-import org.pgpainless.util.Passphrase
 import org.pgpainless.util.Passphrase.fromPassword
 import java.io.*
 import java.nio.file.Files
@@ -52,9 +51,9 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
 
     try {
         files.forEach { file ->
-            val encryptedFilePath = Paths.get(directoryPath, "${file.name}.pgp").toAbsolutePath().toString()
+            val encryptedFilePath = Paths.get(directoryPath, "${file.name}.gpg").toAbsolutePath().toString()
             encryptFileStream(privateKey, file.inputStream(), File(encryptedFilePath).outputStream(), passphrase)
-            file.delete()
+            file.run { delete() }
         }
     } catch (e: Exception) {
         println("Error encrypting files: ${e.message}")
@@ -70,18 +69,21 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
         val secretKeyProtector = SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
 
         files.forEach { file ->
-            val decryptedFile = File(file.parent, "${file.nameWithoutExtension}_decrypted.${file.extension}")
+            if (file.extension == ".gpg") {
+                val decryptedFile = File(file.parent, file.name.removeSuffix(".gpg"))
 
-            val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
+                val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
 
-            val encryptedInputStream = FileInputStream(file)
-            val decryptionStream: DecryptionStream =
-                PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
+                val encryptedInputStream = FileInputStream(file)
+                val decryptionStream: DecryptionStream =
+                    PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
 
-            val outputStream = decryptedFile.outputStream()
-            Streams.pipeAll(decryptionStream, outputStream)
-            decryptionStream.close()
-            outputStream.close()
+                val outputStream = decryptedFile.outputStream()
+                Streams.pipeAll(decryptionStream, outputStream)
+                decryptionStream.close()
+                outputStream.close()
+            }
+
         }
     } catch (e: Exception) {
         println(e.printStackTrace())
@@ -98,7 +100,8 @@ fun encryptFileStream(
         val encryptionStream: EncryptionStream = PGPainless.encryptAndOrSign().onOutputStream(outputStream).withOptions(
             ProducerOptions.encrypt(
                 EncryptionOptions().addRecipient(publicKeyRing)
-                    .overrideEncryptionAlgorithm(SymmetricKeyAlgorithm.AES_192).addPassphrase((fromPassword(passphrase)))
+                    .overrideEncryptionAlgorithm(SymmetricKeyAlgorithm.AES_192)
+                    .addPassphrase((fromPassword(passphrase)))
             ).setAsciiArmor(false)
         )
 

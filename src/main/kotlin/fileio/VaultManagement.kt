@@ -10,9 +10,9 @@ import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
 
 
-
 fun createVault(vaultName: String, username: String, password: String, email: String, rsaLength: RsaLength): Boolean {
-    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value+ Enums.VAULTS_DIR.value + "/$vaultName".trim())
+    val directory =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName".trim())
 
     if (!directory.exists()) {
         val created = directory.mkdirs()
@@ -90,13 +90,17 @@ fun closeVault(vaultName: String, password: String): Boolean {
 fun isDirectoryEncrypted(vaultName: String): Boolean {
     val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
     val files = vault.listFiles()
+    val list = mutableListOf<Boolean>()
 
 
     files?.forEach { file ->
-        if (file.isFile && file.extension == "gpg") {
-            return true
+        if (file.isFile) {
+            if (file.extension == "gpg") {
+                list.add(true)
+            } else list.add(false)
+
         }
     }
 
-    return false
+    return list.all { true }
 }

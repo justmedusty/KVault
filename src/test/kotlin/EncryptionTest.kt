@@ -1,3 +1,4 @@
+import encryption.decryptDirectory
 import encryption.encryptDirectory
 import encryption.encryptFileStream
 import enums.Enums
@@ -17,6 +18,8 @@ class EncryptionTest {
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test.gpg")
     private val testFile =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault/test.txt")
+    private val passphrase = "12345678"
+    val privateKey = retrieveKeyPair("TestVault")
 
 
     @Test
@@ -47,7 +50,6 @@ class EncryptionTest {
         val privateKey = retrieveKeyPair("TestVault")
         testFolder.mkdirs()
         val fileToEncrypt = testFile
-        val passphrase = "12345678"
         assertNotNull(privateKey)
         if (privateKey != null) {
             encryptFileStream(privateKey, testFile.inputStream(), outputFile.outputStream(), passphrase)
@@ -55,7 +57,17 @@ class EncryptionTest {
         }
 
     }
-}/*
+
+    @Test
+    fun decryptDirectory() {
+        val folder = testFolder.toPath().toString()
+        if (privateKey != null) {
+
+            decryptDirectory(folder, privateKey, passphrase)
+            assertTrue(!isDirectoryEncrypted(folder))
+
+        }
+    }/*
         @Test
         fun testEncryptionWithInvalidPublicKey() {
             val inputFile = File("input.txt")
@@ -82,4 +94,4 @@ class EncryptionTest {
             assertFalse(outputFile.exists())
         }
         */
-
+}
