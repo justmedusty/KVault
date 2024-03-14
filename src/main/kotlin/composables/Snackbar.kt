@@ -10,13 +10,14 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun infoSnackbar(message: String, visible : Boolean) {
-    var snackbarVisible by remember { mutableStateOf(visible) }
+    val snackbarVisible by remember { mutableStateOf(visible) }
 
     if (snackbarVisible) {
         Snackbar(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Text(message)
         }
     }
 }
+

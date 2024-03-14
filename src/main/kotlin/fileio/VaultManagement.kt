@@ -33,8 +33,6 @@ fun createVault(vaultName: String, username: String, password: String, email: St
 
                     else -> {
                         encryptDirectory(directory.toPath().toString(), secretKey, password)
-                        println(directory.toPath())
-                        println(directory.toPath().toString())
                         true
                     }
                 }
@@ -76,6 +74,7 @@ fun openVault(vaultName: String, password: String): List<String> {
             decryptDirectory(directory.toString(), privateKey, password)
             directory.listFiles()?.forEach { file ->
                 fileList.add(file.name)
+                println(file.name)
             }
             return fileList
         } catch (e: Exception) {
@@ -84,7 +83,6 @@ fun openVault(vaultName: String, password: String): List<String> {
         }
     }
     return emptyList()
-
 }
 
 fun closeVault(vaultName: String, password: String): Boolean {

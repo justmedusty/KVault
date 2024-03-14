@@ -30,8 +30,9 @@ fun app() {
 fun core() {
     MaterialTheme {
         var selectedItem by remember { mutableStateOf("My Vaults") }
-
         var isDialogOpen by remember { mutableStateOf(false) }
+        var password by remember { mutableStateOf("") }
+        var fileList by remember { mutableStateOf(emptyList<String>()) }
 
         Column {
             TopAppBar(backgroundColor = Color.Black, contentColor = Color.White, title = {
@@ -42,10 +43,16 @@ fun core() {
                 )
                 Text("KVault")
             }, modifier = Modifier.align(Alignment.CenterHorizontally), actions = {
-                dropdownList(dropdownItems = listAllVaults(),
-                    selectedItem = remember { mutableStateOf(selectedItem)
-                    })
-                IconButton(onClick = { isDialogOpen = !isDialogOpen
+                dropdownList(
+                    dropdownItems = listAllVaults(),
+                    selectedItem = remember { mutableStateOf(selectedItem) },
+                    onVaultOpened = { pwd, files ->
+                        password = pwd
+                        fileList = files
+                    }
+                )
+                IconButton(onClick = {
+                    isDialogOpen = !isDialogOpen
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Create Vault")
                 }
@@ -56,16 +63,37 @@ fun core() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Open Or Create A Vault To Get Started")
+                if (password.isNotEmpty() && fileList.isNotEmpty()) {
+                    Text("Vault Password: $password")
+                    Text("Files in Vault:")
+                    fileList.forEach { file ->
+                        Text(file)
+                    }
+                } else {
+                    Text("Open Or Create A Vault To Get Started")
+                }
             }
         }
     }
 }
 
 @Composable
-fun dropdownList(dropdownItems: List<String>, selectedItem: MutableState<String>) {
+fun dropdownList(
+    dropdownItems: List<String>,
+    selectedItem: MutableState<String>,
+    onVaultOpened: (String, List<String>) -> Unit // Callback function to pass password and file list to core
+) {
+    var isDialogOpen by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
-
+    var vaultName by remember { mutableStateOf("") }
+    var fileList by remember { mutableStateOf(emptyList<String>()) }
+    if (isDialogOpen){
+        openVaultForm(
+            vaultName = vaultName,
+            onVaultOpened = { password, files -> onVaultOpened(password, files) },
+            onDismiss = { isDialogOpen = false }
+        )
+    }
     Column {
         IconButton(onClick = { expanded = true }) {
             Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
@@ -78,6 +106,8 @@ fun dropdownList(dropdownItems: List<String>, selectedItem: MutableState<String>
                 DropdownMenuItem(onClick = {
                     selectedItem.value = item
                     expanded = false
+                    vaultName = selectedItem.value
+                    isDialogOpen = true
                 }) {
                     Text(item)
                 }
