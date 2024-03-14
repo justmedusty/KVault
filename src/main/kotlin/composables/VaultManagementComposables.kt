@@ -122,6 +122,7 @@ fun openVaultForm(
                 Row(modifier = Modifier.padding(top = 10.dp)) {
                     Button(onClick = {
                         fileList = openVault(vaultName, password)
+                        println(fileList)
                         onVaultOpened(password, fileList)
                         dismissed = true
                     }) {

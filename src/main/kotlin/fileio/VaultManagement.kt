@@ -67,8 +67,10 @@ fun listAllVaults(): List<String> {
 
 fun openVault(vaultName: String, password: String): List<String> {
     val fileList = mutableListOf<String>()
-    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
-    val privateKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
+    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    val privateKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
+    println(privateKey != null)
+    println(directory.exists())
     if (privateKey != null && directory.exists()) {
         try {
             decryptDirectory(directory.toString(), privateKey, password)
@@ -81,12 +83,14 @@ fun openVault(vaultName: String, password: String): List<String> {
             println(e.printStackTrace())
             return emptyList()
         }
+    }else{
+        return emptyList()
     }
-    return emptyList()
+
 }
 
 fun closeVault(vaultName: String, password: String): Boolean {
-    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.VAULTS_DIR + "/$vaultName")
+    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR + "/$vaultName")
     val privateKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
     try {
         if (privateKey != null) {
