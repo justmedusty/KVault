@@ -27,10 +27,10 @@ fun newVaultForm() {
     }
 
     fun submitNewVault(): String {
-        if (name == null) return "Name is required (Can use the same name as others)"
-        if (email == null) return "Email is required (Can use the same name as others)"
-        if (vaultName == null) return "Vault name cannot be empty"
-        if (password == null) return "Password cannot be empty"
+        if (name == "") return "Name is required (Can use the same name as others)"
+        if (email == "") return "Email is required (Can use the same name as others)"
+        if (vaultName == "") return "Vault name cannot be empty"
+        if (password == "") return "Password cannot be empty"
 
         return when {
             createVault(vaultName, name, email, password) -> {
