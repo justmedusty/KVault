@@ -15,12 +15,12 @@ import fileio.openVault
 
 @Composable
 fun newVaultForm() {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var vaultName by remember { mutableStateOf("") }
-    var dismissed by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf("")}
+    var email by remember { mutableStateOf("")}
+    var vaultName by remember { mutableStateOf("")}
+    var dismissed by remember { mutableStateOf(false)}
     var password by remember { mutableStateOf("") }
-    var statusMessage by remember { mutableStateOf("") }
+    var statusMessage by remember { mutableStateOf("")}
     var notification by remember { mutableStateOf(false) }
     if (dismissed) {
         return
@@ -98,7 +98,7 @@ fun newVaultForm() {
 @Composable
 fun openVaultForm(
     vaultName: String,
-    onVaultOpened: (String, List<String>) -> Unit, // Callback function to pass the file list to the parent
+    onVaultOpened: (String,String, List<String>) -> Unit, // Callback function to pass the file list to the parent
     onDismiss: () -> Unit // Callback function to dismiss the dialog
 ) {
     var dismissed by remember { mutableStateOf(false) }
@@ -123,7 +123,7 @@ fun openVaultForm(
                     Button(onClick = {
                         fileList = openVault(vaultName, password)
                         println(fileList)
-                        onVaultOpened(password, fileList)
+                        onVaultOpened(vaultName,password, fileList)
                         dismissed = true
                     }) {
                         Text("Submit")

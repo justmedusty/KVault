@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
+import fileio.closeVault
 import fileio.listAllVaults
 
 @Composable
@@ -33,6 +34,7 @@ fun core() {
         var isDialogOpen by remember { mutableStateOf(false) }
         var password by remember { mutableStateOf("") }
         var fileList by remember { mutableStateOf(emptyList<String>()) }
+        var vaultName by remember { mutableStateOf("") }
 
         Column {
             TopAppBar(backgroundColor = Color.Black, contentColor = Color.White, title = {
@@ -43,14 +45,13 @@ fun core() {
                 )
                 Text("KVault")
             }, modifier = Modifier.align(Alignment.CenterHorizontally), actions = {
-                dropdownList(
-                    dropdownItems = listAllVaults(),
+                dropdownList(dropdownItems = listAllVaults(),
                     selectedItem = remember { mutableStateOf(selectedItem) },
-                    onVaultOpened = { pwd, files ->
+                    onVaultOpened = { vltnme, pwd, files ->
+                        vaultName = vltnme
                         password = pwd
                         fileList = files
-                    }
-                )
+                    })
                 IconButton(onClick = {
                     isDialogOpen = !isDialogOpen
                 }) {
@@ -64,10 +65,16 @@ fun core() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (password.isNotEmpty() && fileList.isNotEmpty()) {
-                    Text("Vault Password: $password")
-                    Text("Files in Vault:")
+                    Text("Files in Vault $vaultName:")
                     fileList.forEach { file ->
                         Text(file)
+                    }
+                    Button(onClick = {
+                        closeVault(vaultName,password)
+                        password = ""
+                        fileList = emptyList()
+                    } ){
+                        Text("Close Vault")
                     }
                 } else {
                     Text("Open Or Create A Vault To Get Started")
@@ -81,18 +88,16 @@ fun core() {
 fun dropdownList(
     dropdownItems: List<String>,
     selectedItem: MutableState<String>,
-    onVaultOpened: (String, List<String>) -> Unit // Callback function to pass password and file list to core
+    onVaultOpened: (String, String, List<String>) -> Unit // Callback function to pass password and file list to core
 ) {
     var isDialogOpen by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var vaultName by remember { mutableStateOf("") }
     var fileList by remember { mutableStateOf(emptyList<String>()) }
-    if (isDialogOpen){
-        openVaultForm(
-            vaultName = vaultName,
-            onVaultOpened = { password, files -> onVaultOpened(password, files) },
-            onDismiss = { isDialogOpen = false }
-        )
+    if (isDialogOpen) {
+        openVaultForm(vaultName = vaultName,
+            onVaultOpened = { vaultName, password, files -> onVaultOpened(vaultName, password, files) },
+            onDismiss = { isDialogOpen = false })
     }
     Column {
         IconButton(onClick = { expanded = true }) {

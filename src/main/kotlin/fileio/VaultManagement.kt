@@ -90,8 +90,8 @@ fun openVault(vaultName: String, password: String): List<String> {
 }
 
 fun closeVault(vaultName: String, password: String): Boolean {
-    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR + "/$vaultName")
-    val privateKey: PGPSecretKeyRing? = retrieveKeyPair("$vaultName.asc")
+    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    val privateKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
     try {
         if (privateKey != null) {
             encryptDirectory(vault.toPath().toString(), privateKey, password)
