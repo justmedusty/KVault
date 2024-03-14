@@ -21,7 +21,6 @@ import org.pgpainless.key.protection.SecretKeyRingProtector
 import org.pgpainless.util.Passphrase.fromPassword
 import java.io.*
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -52,8 +51,11 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
     val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
     try {
         files.forEach { file ->
+            if (file.isDirectory) {
+                (encryptDirectory(file.absolutePath, privateKey, passphrase))
+            }
             if (!file.name.contains(".gpg")) {
-                val encryptedFilePath = Paths.get(directoryPath, "${file.name}.gpg").toAbsolutePath().toString()
+                val encryptedFilePath = file.toPath().resolveSibling("${file.name}.gpg").toAbsolutePath().toString()
                 encryptFileStream(privateKey, file.inputStream(), File(encryptedFilePath).outputStream(), passphrase)
                 file.run { delete() }
             }
@@ -73,6 +75,9 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
         val secretKeyProtector = SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
 
         files.forEach { file ->
+            if (file.isDirectory) {
+                decryptDirectory(file.absolutePath, secretKey, passphrase)
+            }
             if (file.name.contains(".gpg")) {
                 val decryptedFile = File(file.parent, file.nameWithoutExtension)
 

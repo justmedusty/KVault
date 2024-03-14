@@ -25,7 +25,7 @@ class EncryptionTest {
 
     @Test
     fun createVaultWithNewKeyPair() {
-        createVault("TestVault", "dusty", "12345678", "dustyn@dustyn.com", RsaLength._4096)
+        createVault("TestVault", "dusty", "12345678", "dustyn@dustyn.com")
         assertTrue(isDirectoryEncrypted("TestVault"))
     }
 
@@ -39,7 +39,7 @@ class EncryptionTest {
         if (privateKey != null) {
             encryptDirectory(testFolder.toString(), privateKey, passphrase)
             assertNotNull(privateKey)
-            assertTrue(isDirectoryEncrypted("TestVault"))
+            assertTrue(isDirectoryEncrypted(testFolder.absolutePath))
 
         }
 
@@ -65,7 +65,7 @@ class EncryptionTest {
         if (privateKey != null) {
             decryptDirectory(folder, privateKey, passphrase)
         }
-        assertTrue(!isDirectoryEncrypted("TestVault"))
+        assertTrue(!isDirectoryEncrypted(testFolder.absolutePath))
 
     }
 

@@ -14,7 +14,9 @@ import fileio.createVault
 import fileio.openVault
 
 @Composable
-fun newVaultForm() {
+fun newVaultForm(
+    onDismiss: () -> Unit
+) {
     var name by remember { mutableStateOf("")}
     var email by remember { mutableStateOf("")}
     var vaultName by remember { mutableStateOf("")}
@@ -23,7 +25,7 @@ fun newVaultForm() {
     var statusMessage by remember { mutableStateOf("")}
     var notification by remember { mutableStateOf(false) }
     if (dismissed) {
-        return
+        onDismiss()
     }
 
     fun submitNewVault(): String {

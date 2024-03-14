@@ -58,7 +58,7 @@ fun core() {
                     Icon(Icons.Filled.Add, contentDescription = "Create Vault")
                 }
             })
-            if (isDialogOpen) newVaultForm()
+            if (isDialogOpen) newVaultForm(onDismiss = {isDialogOpen = false})
             Column(
                 modifier = Modifier.padding(16.dp).fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -96,7 +96,7 @@ fun dropdownList(
     var fileList by remember { mutableStateOf(emptyList<String>()) }
     if (isDialogOpen) {
         openVaultForm(vaultName = vaultName,
-            onVaultOpened = { vaultName, password, files -> onVaultOpened(vaultName, password, files) },
+            onVaultOpened = { _, password, files -> onVaultOpened(vaultName, password, files) },
             onDismiss = { isDialogOpen = false })
     }
     Column {
