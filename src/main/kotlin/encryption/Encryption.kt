@@ -31,7 +31,7 @@ fun generateKeyPair(passphrase: String, name: String, email: String, vaultName: 
 
     val keyRing: PGPSecretKeyRing = PGPainless.buildKeyRing().setPrimaryKey(
         KeySpec.getBuilder(
-            RSA.withLength(RsaLength._8192), KeyFlag.SIGN_DATA, KeyFlag.CERTIFY_OTHER
+            RSA.withLength(RsaLength._4096), KeyFlag.SIGN_DATA, KeyFlag.CERTIFY_OTHER
         )
     ).addSubkey(
         KeySpec.getBuilder(ECDSA.fromCurve(EllipticCurve._P256), KeyFlag.SIGN_DATA)

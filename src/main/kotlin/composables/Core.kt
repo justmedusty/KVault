@@ -67,32 +67,39 @@ fun core() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (password.isNotEmpty() && fileList.isNotEmpty()) {
+                if (password.isNotEmpty()) {
                     Text("Files in Vault $vaultName:")
-                    LazyColumn {
-                        Modifier.align(Alignment.CenterHorizontally)
-                        item {
-                            fileList.forEach { file ->
-                                if (file.isDirectory) {
-                                    Text(file.name + " (Directory)")
-                                } else {
-                                    Text(file.name)
+                    if (fileList.isEmpty()) {
+                        Text("No files yet!")
+                    } else {
+                        LazyColumn {
+                            Modifier.align(Alignment.CenterHorizontally)
+                            item {
+                                fileList.forEach { file ->
+                                    if (file.isDirectory) {
+                                        Text(file.name + " (Directory)")
+                                    } else {
+                                        Text(file.name)
+                                    }
                                 }
                             }
                         }
+                        Button(onClick = {
+                            closeVault(vaultName, password)
+                            password = ""
+                            fileList = emptyList()
+                        }) {
+                            Text("Close Vault")
+                        }
+
+                        Button(onClick = {
+                            true.also { java.awt.FileDialog(ComposeWindow()).isVisible = it }
+                        }) {
+                            Text("File Picker")
+                        }
                     }
-                    Button(onClick = {
-                        closeVault(vaultName, password)
-                        password = ""
-                        fileList = emptyList()
-                    }) {
-                        Text("Close Vault")
-                    }
-                    Button(onClick = {
-                        true.also { java.awt.FileDialog(ComposeWindow()).isVisible = it }
-                    }) {
-                        Text("File Picker")
-                    }
+                    fileDrop()
+
                 } else {
                     Text("Open Or Create A Vault To Get Started")
 

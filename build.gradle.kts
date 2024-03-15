@@ -34,7 +34,9 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+
 }
+
 
 compose.desktop {
     application {
@@ -46,3 +48,4 @@ compose.desktop {
         }
     }
 }
+
