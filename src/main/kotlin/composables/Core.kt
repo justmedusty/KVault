@@ -111,7 +111,6 @@ fun dropdownList(
     var isDialogOpen by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var vaultName by remember { mutableStateOf("") }
-    var fileList by remember { mutableStateOf(emptyList<File>()) }
     if (isDialogOpen) {
         openVaultForm(vaultName = vaultName,
             onVaultOpened = { _, password, files -> onVaultOpened(vaultName, password, files) },

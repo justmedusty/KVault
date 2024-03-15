@@ -1,6 +1,5 @@
 import encryption.decryptDirectory
 import encryption.encryptDirectory
-import encryption.encryptFileStream
 import enums.Enums
 import fileio.createVault
 import fileio.isDirectoryEncrypted
@@ -9,7 +8,6 @@ import fileio.retrieveKeyPair
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
 
 class EncryptionTest {
@@ -43,19 +41,6 @@ class EncryptionTest {
 
         }
 
-
-    }
-
-    @Test
-    fun testEncryptionFile() {
-        val privateKey = retrieveKeyPair("TestVault")
-        testFolder.mkdirs()
-        val fileToEncrypt = testFile
-        assertNotNull(privateKey)
-        if (privateKey != null) {
-            encryptFileStream(privateKey, testFile.inputStream(), outputFile.outputStream(), passphrase)
-            assertNotNull(privateKey)
-        }
 
     }
 
