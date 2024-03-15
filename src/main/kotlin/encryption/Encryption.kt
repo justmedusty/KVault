@@ -19,11 +19,12 @@ import org.pgpainless.key.generation.type.rsa.RSA
 import org.pgpainless.key.generation.type.rsa.RsaLength
 import org.pgpainless.key.protection.SecretKeyRingProtector
 import org.pgpainless.util.Passphrase.fromPassword
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 
 fun generateKeyPair(passphrase: String, name: String, email: String, vaultName: String) {
@@ -75,9 +76,7 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
         val secretKeyProtector = SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
 
         files.forEach { file ->
-            if (file.isDirectory) {
-                decryptDirectory(file.absolutePath, secretKey, passphrase)
-            }
+
             if (file.name.contains(".gpg")) {
                 val decryptedFile = File(file.parent, file.nameWithoutExtension)
 
@@ -99,6 +98,9 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
                 } catch (e: Exception) {
                     println(e.message)
                 }
+            }
+            if (file.isDirectory) {
+                decryptDirectory(file.absolutePath, secretKey, passphrase)
             }
 
 
@@ -132,8 +134,7 @@ fun encryptFileStream(
     } catch (e: Exception) {
         println("Error encrypting file: ${e.message}")
     }
-}
-
+}/*
 fun createZipFile(files: List<File>, destinationPath: String) {
     val zipOutputStream = ZipOutputStream(FileOutputStream(destinationPath))
 
@@ -155,3 +156,4 @@ fun createZipFile(files: List<File>, destinationPath: String) {
 
     zipOutputStream.close()
 }
+*/

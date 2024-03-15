@@ -2,9 +2,7 @@ package fileio
 
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
-import org.bouncycastle.openpgp.PGPPublicKeyRing
 import org.bouncycastle.openpgp.PGPSecretKeyRing
-import org.bouncycastle.util.Arrays
 import org.pgpainless.PGPainless
 import java.io.File
 import java.io.FileInputStream
@@ -47,7 +45,7 @@ fun storeKeyPair(privateKey: ByteArray, vaultName: String) {
 }
 
 fun retrieveKeyPair(vaultName: String): PGPSecretKeyRing? {
-    val file: File =
+    val file =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR.value + "/${vaultName}.asc")
     try {
         return if (!file.exists()) {
@@ -67,7 +65,8 @@ fun retrieveKeyPair(vaultName: String): PGPSecretKeyRing? {
 
 fun listAllKeys(): MutableList<String> {
     val directoryPath = File(
-        System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR.value)
+        System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.KEY_DIR.value
+    )
     val fileList = mutableListOf<String>()
     if (directoryPath.exists() && directoryPath.isDirectory()) {
         directoryPath.walkTopDown().forEach {

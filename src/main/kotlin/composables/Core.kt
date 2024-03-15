@@ -3,6 +3,7 @@ package composables
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
@@ -17,6 +19,7 @@ import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import fileio.closeVault
 import fileio.listAllVaults
+import java.io.File
 
 @Composable
 @Preview
@@ -33,7 +36,7 @@ fun core() {
         var selectedItem by remember { mutableStateOf("My Vaults") }
         var isDialogOpen by remember { mutableStateOf(false) }
         var password by remember { mutableStateOf("") }
-        var fileList by remember { mutableStateOf(emptyList<String>()) }
+        var fileList by remember { mutableStateOf(emptyList<File>()) }
         var vaultName by remember { mutableStateOf("") }
 
         Column {
@@ -58,7 +61,7 @@ fun core() {
                     Icon(Icons.Filled.Add, contentDescription = "Create Vault")
                 }
             })
-            if (isDialogOpen) newVaultForm(onDismiss = {isDialogOpen = false})
+            if (isDialogOpen) newVaultForm(onDismiss = { isDialogOpen = false })
             Column(
                 modifier = Modifier.padding(16.dp).fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -66,18 +69,33 @@ fun core() {
             ) {
                 if (password.isNotEmpty() && fileList.isNotEmpty()) {
                     Text("Files in Vault $vaultName:")
-                    fileList.forEach { file ->
-                        Text(file)
+                    LazyColumn {
+                        Modifier.align(Alignment.CenterHorizontally)
+                        item {
+                            fileList.forEach { file ->
+                                if (file.isDirectory) {
+                                    Text(file.name + " (Directory)")
+                                } else {
+                                    Text(file.name)
+                                }
+                            }
+                        }
                     }
                     Button(onClick = {
-                        closeVault(vaultName,password)
+                        closeVault(vaultName, password)
                         password = ""
                         fileList = emptyList()
-                    } ){
+                    }) {
                         Text("Close Vault")
+                    }
+                    Button(onClick = {
+                        true.also { java.awt.FileDialog(ComposeWindow()).isVisible = it }
+                    }) {
+                        Text("File Picker")
                     }
                 } else {
                     Text("Open Or Create A Vault To Get Started")
+
                 }
             }
         }
@@ -88,12 +106,12 @@ fun core() {
 fun dropdownList(
     dropdownItems: List<String>,
     selectedItem: MutableState<String>,
-    onVaultOpened: (String, String, List<String>) -> Unit // Callback function to pass password and file list to core
+    onVaultOpened: (String, String, List<File>) -> Unit // Callback function to pass password and file list to core
 ) {
     var isDialogOpen by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var vaultName by remember { mutableStateOf("") }
-    var fileList by remember { mutableStateOf(emptyList<String>()) }
+    var fileList by remember { mutableStateOf(emptyList<File>()) }
     if (isDialogOpen) {
         openVaultForm(vaultName = vaultName,
             onVaultOpened = { _, password, files -> onVaultOpened(vaultName, password, files) },

@@ -12,17 +12,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import fileio.createVault
 import fileio.openVault
+import java.io.File
 
 @Composable
 fun newVaultForm(
     onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf("")}
-    var email by remember { mutableStateOf("")}
-    var vaultName by remember { mutableStateOf("")}
-    var dismissed by remember { mutableStateOf(false)}
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var vaultName by remember { mutableStateOf("") }
+    var dismissed by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
-    var statusMessage by remember { mutableStateOf("")}
+    var statusMessage by remember { mutableStateOf("") }
     var notification by remember { mutableStateOf(false) }
     if (dismissed) {
         onDismiss()
@@ -100,12 +101,12 @@ fun newVaultForm(
 @Composable
 fun openVaultForm(
     vaultName: String,
-    onVaultOpened: (String,String, List<String>) -> Unit, // Callback function to pass the file list to the parent
+    onVaultOpened: (String, String, List<File>) -> Unit, // Callback function to pass the file list to the parent
     onDismiss: () -> Unit // Callback function to dismiss the dialog
 ) {
     var dismissed by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
-    var fileList: List<String> by remember { mutableStateOf(emptyList()) }
+    var fileList: List<File> by remember { mutableStateOf(emptyList()) }
     if (dismissed) {
         onDismiss()
         return
@@ -117,7 +118,7 @@ fun openVaultForm(
                 TextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password for vault $vaultName")},
+                    label = { Text("Password for vault $vaultName") },
                     modifier = Modifier.padding(top = 10.dp),
                     visualTransformation = PasswordVisualTransformation(),
                 )
@@ -125,7 +126,7 @@ fun openVaultForm(
                     Button(onClick = {
                         fileList = openVault(vaultName, password)
                         println(fileList)
-                        onVaultOpened(vaultName,password, fileList)
+                        onVaultOpened(vaultName, password, fileList)
                         dismissed = true
                     }) {
                         Text("Submit")

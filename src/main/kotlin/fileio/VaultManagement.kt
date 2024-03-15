@@ -6,10 +6,7 @@ import encryption.generateKeyPair
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
-import org.pgpainless.key.generation.type.rsa.RsaLength
 import java.io.File
-import kotlin.io.path.isDirectory
-import kotlin.io.path.name
 
 
 fun createVault(vaultName: String, username: String, password: String, email: String): Boolean {
@@ -51,46 +48,48 @@ fun createVault(vaultName: String, username: String, password: String, email: St
 }
 
 fun listAllVaults(): List<String> {
-    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value +Enums.VAULTS_DIR.value)
-    val vaultList = mutableListOf<String>()
-
-    for (file in directory.listFiles()!!) {
-        if (file.isDirectory()) {
-            vaultList.add(file.name)
+    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value)
+    val vaultList = (directory.listFiles()?.toMutableList())
+    val responseList = mutableListOf<String>()
+    if (!vaultList.isNullOrEmpty()) {
+        for (file in vaultList) {
+            if (file.isDirectory()) {
+                responseList.add(file.name)
+            }
         }
+    } else {
+        responseList.add("You have no vaults")
     }
-    if (vaultList.isEmpty()){
-        vaultList.add("You have no vaults")
-    }
-    return vaultList
+
+
+    return responseList
 }
 
-fun openVault(vaultName: String, password: String): List<String> {
-    val fileList = mutableListOf<String>()
-    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+fun openVault(vaultName: String, password: String): List<File> {
+    val fileList = mutableListOf<File>()
+    val directory =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
     val privateKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
-    println(privateKey != null)
-    println(directory.exists())
     if (privateKey != null && directory.exists()) {
         try {
             decryptDirectory(directory.toString(), privateKey, password)
             directory.listFiles()?.forEach { file ->
-                fileList.add(file.name)
-                println(file.name)
+                fileList.add(file)
             }
             return fileList
         } catch (e: Exception) {
             println(e.printStackTrace())
             return emptyList()
         }
-    }else{
+    } else {
         return emptyList()
     }
 
 }
 
 fun closeVault(vaultName: String, password: String): Boolean {
-    val vault = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    val vault =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
     val privateKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
     try {
         if (privateKey != null) {
@@ -106,13 +105,12 @@ fun closeVault(vaultName: String, password: String): Boolean {
 }
 
 fun isDirectoryEncrypted(directoryPath: String): Boolean {
-    val vault =
-        File(directoryPath)
+    val vault = File(directoryPath)
     val files: List<File>? = vault.listFiles()?.toList()
 
     if (files != null) {
         for (file in files) {
-            if (file.isDirectory){
+            if (file.isDirectory) {
                 isDirectoryEncrypted(file.absolutePath)
             }
             if (!file.isDirectory && !file.name.endsWith(".gpg")) {
