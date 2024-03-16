@@ -18,8 +18,6 @@ import java.io.File
 fun newVaultForm(
     onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
     var vaultName by remember { mutableStateOf("") }
     var dismissed by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
@@ -30,13 +28,11 @@ fun newVaultForm(
     }
 
     fun submitNewVault(): String {
-        if (name == "") return "Name is required (Can use the same name as others)"
-        if (email == "") return "Email is required (Can use the same name as others)"
         if (vaultName == "") return "Vault name cannot be empty"
         if (password == "") return "Password cannot be empty"
 
         return when {
-            createVault(vaultName, name, email, password) -> {
+            createVault(vaultName, password) -> {
                 dismissed = true
                 "Success"
             }
@@ -56,18 +52,6 @@ fun newVaultForm(
                     value = vaultName,
                     onValueChange = { vaultName = it },
                     label = { Text("Vault Name") },
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                TextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name For Keypair") },
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                TextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email For KeyPair") },
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(

@@ -73,7 +73,7 @@ fun dragAndDropDescription(modifier: Modifier, color: Color) {
 
 @Composable
 fun filePickerDialog(
-    showDialog: MutableState<Boolean>, onFileSelected: (String) -> Unit
+    showDialog: MutableState<Boolean>, onFileSelected: (String?) -> Unit
 ) {
     if (showDialog.value) {
         Dialog(

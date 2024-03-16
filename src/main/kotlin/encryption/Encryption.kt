@@ -27,7 +27,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 
-fun generateKeyPair(passphrase: String, name: String, email: String, vaultName: String) {
+fun generateKeyPair(passphrase: String, vaultName: String) {
 
     val keyRing: PGPSecretKeyRing = PGPainless.buildKeyRing().setPrimaryKey(
         KeySpec.getBuilder(
@@ -39,7 +39,7 @@ fun generateKeyPair(passphrase: String, name: String, email: String, vaultName: 
         KeySpec.getBuilder(
             ECDH.fromCurve(EllipticCurve._P256), KeyFlag.ENCRYPT_COMMS, KeyFlag.ENCRYPT_STORAGE
         )
-    ).addUserId("$name <$email>").setPassphrase(fromPassword(passphrase)).build()
+    ).addUserId(vaultName).setPassphrase(fromPassword(passphrase)).build()
 
     val fileName: String = vaultName
     val privateKey: ByteArray = keyRing.encoded
@@ -55,10 +55,10 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
             if (file.isDirectory) {
                 (encryptDirectory(file.absolutePath, privateKey, passphrase))
             }
-            if (!file.name.contains(".gpg")) {
+            if (!file.name.endsWith(".gpg")) {
                 val encryptedFilePath = file.toPath().resolveSibling("${file.name}.gpg").toAbsolutePath().toString()
                 encryptFileStream(privateKey, file.inputStream(), File(encryptedFilePath).outputStream(), passphrase)
-                file.run { delete() }
+                file.delete()
             }
 
         }
@@ -121,7 +121,6 @@ fun encryptFileStream(
             ProducerOptions.encrypt(
                 EncryptionOptions().addRecipient(publicKeyRing)
                     .overrideEncryptionAlgorithm(SymmetricKeyAlgorithm.AES_192)
-                    .addPassphrase((fromPassword(passphrase)))
             ).setAsciiArmor(false)
         )
 

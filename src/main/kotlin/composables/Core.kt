@@ -11,17 +11,16 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import enums.Enums
+import fileio.addFileToVault
 import fileio.closeVault
 import fileio.isDirectoryEncrypted
 import fileio.listAllVaults
-import java.awt.FileDialog
 import java.io.File
 
 @Composable
@@ -41,8 +40,8 @@ fun core() {
         var password by remember { mutableStateOf("") }
         var fileList by remember { mutableStateOf(emptyList<File>()) }
         var vaultName by remember { mutableStateOf("") }
-        val showDialog by remember{ mutableStateOf(false) }
-        var selectedFilePath by remember{ mutableStateOf("") }
+        var showDialog by remember { mutableStateOf(false) }
+        var selectedFilePath by remember { mutableStateOf("") }
 
         Column {
             TopAppBar(backgroundColor = Color.Black, contentColor = Color.White, title = {
@@ -79,6 +78,30 @@ fun core() {
                         Text("Your password was incorrect!")
                     } else if (fileList.isEmpty()) {
                         Text("No files yet!")
+                        Column {
+                            // Button to open file picker dialog
+                            Button(
+                                onClick = { showDialog = true }, modifier = Modifier.padding(16.dp)
+                            ) {
+                                Text("Open File Picker")
+                            }
+
+                            // Display selected file path
+                            selectedFilePath.let {
+                                Text("Selected File Path: $it")
+                            }
+
+                            // File picker dialog
+                            filePickerDialog(showDialog = remember { mutableStateOf(showDialog) },
+                                onFileSelected = { filePath ->
+                                    if (filePath != null) {
+                                        selectedFilePath = filePath
+                                    }
+                                    if (filePath != null) {
+                                        addFileToVault(selectedFilePath, vaultName)
+                                    }
+                                })
+                        }
                     } else {
                         LazyColumn {
                             Modifier.align(Alignment.CenterHorizontally)
@@ -99,14 +122,6 @@ fun core() {
                         }) {
                             Text("Close Vault")
                         }
-
-                        filePickerDialog(
-                            showDialog = remember { mutableStateOf(showDialog) },
-                            onFileSelected = { filePath ->
-                                selectedFilePath = filePath
-
-                            }
-                        )
                     }
                 } else {
                     Text("Open Or Create A Vault To Get Started")

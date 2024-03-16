@@ -6,10 +6,11 @@ import encryption.generateKeyPair
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
+import org.pgpainless.exception.WrongPassphraseException
 import java.io.File
 
 
-fun createVault(vaultName: String, username: String, password: String, email: String): Boolean {
+fun createVault(vaultName: String, password: String): Boolean {
     val directory =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName".trim())
 
@@ -17,7 +18,7 @@ fun createVault(vaultName: String, username: String, password: String, email: St
         val created = directory.mkdirs()
 
         if (created) {
-            generateKeyPair(password, username, email, vaultName)
+            generateKeyPair(password,vaultName)
 
             val secretKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
 
