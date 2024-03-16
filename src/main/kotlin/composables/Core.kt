@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
+import enums.Enums
 import fileio.closeVault
+import fileio.isDirectoryEncrypted
 import fileio.listAllVaults
 import java.awt.FileDialog
 import java.io.File
@@ -39,6 +41,8 @@ fun core() {
         var password by remember { mutableStateOf("") }
         var fileList by remember { mutableStateOf(emptyList<File>()) }
         var vaultName by remember { mutableStateOf("") }
+        val showDialog by remember{ mutableStateOf(false) }
+        var selectedFilePath by remember{ mutableStateOf("") }
 
         Column {
             TopAppBar(backgroundColor = Color.Black, contentColor = Color.White, title = {
@@ -68,9 +72,12 @@ fun core() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 if (password.isNotEmpty()) {
                     Text("Files in Vault $vaultName:")
-                    if (fileList.isEmpty()) {
+                    if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
+                        Text("Your password was incorrect!")
+                    } else if (fileList.isEmpty()) {
                         Text("No files yet!")
                     } else {
                         LazyColumn {
@@ -93,18 +100,19 @@ fun core() {
                             Text("Close Vault")
                         }
 
-                        Button(onClick = {
-                            true.also { FileDialog(ComposeWindow()).isVisible = it }
-                        }) {
-                            Text("File Picker")
-                        }
-                    }
-                    fileDrop()
+                        filePickerDialog(
+                            showDialog = remember { mutableStateOf(showDialog) },
+                            onFileSelected = { filePath ->
+                                selectedFilePath = filePath
 
+                            }
+                        )
+                    }
                 } else {
                     Text("Open Or Create A Vault To Get Started")
 
                 }
+
             }
         }
     }

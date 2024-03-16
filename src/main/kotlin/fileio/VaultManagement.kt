@@ -6,7 +6,6 @@ import encryption.generateKeyPair
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
-import org.pgpainless.exception.WrongPassphraseException
 import java.io.File
 
 
@@ -75,9 +74,6 @@ fun openVault(vaultName: String, password: String): List<File> {
         try {
             decryptDirectory(directory.toString(), privateKey, password)
             directory.listFiles()?.forEach { file ->
-                if (file.name.endsWith(".gpg")) {
-                    throw WrongPassphraseException("You entered an incorrect password!")
-                }
                 fileList.add(file)
             }
             return fileList
