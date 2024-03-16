@@ -72,36 +72,14 @@ fun core() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+
                 if (password.isNotEmpty()) {
+
                     Text("Files in Vault $vaultName:")
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                         Text("Your password was incorrect!")
                     } else if (fileList.isEmpty()) {
                         Text("No files yet!")
-                        Column {
-                            // Button to open file picker dialog
-                            Button(
-                                onClick = { showDialog = true }, modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text("Open File Picker")
-                            }
-
-                            // Display selected file path
-                            selectedFilePath.let {
-                                Text("Selected File Path: $it")
-                            }
-
-                            // File picker dialog
-                            filePickerDialog(showDialog = remember { mutableStateOf(showDialog) },
-                                onFileSelected = { filePath ->
-                                    if (filePath != null) {
-                                        selectedFilePath = filePath
-                                    }
-                                    if (filePath != null) {
-                                        addFileToVault(selectedFilePath, vaultName)
-                                    }
-                                })
-                        }
                     } else {
                         LazyColumn {
                             Modifier.align(Alignment.CenterHorizontally)
@@ -122,7 +100,29 @@ fun core() {
                         }) {
                             Text("Close Vault")
                         }
+
+                        // Button to open file picker dialog
+                        Button(
+                            onClick = { showDialog = !showDialog }, modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text("Open File Picker")
+                        }
+
+                        // Display selected file path
+                        selectedFilePath.let {
+                            Text("Selected File Path: $it")
+                        }
+
+                        // File picker dialog
+                        filePickerDialog(showDialog = mutableStateOf(showDialog), onFileSelected = { filePath ->
+                            if (filePath != null) {
+                                selectedFilePath = filePath
+                                // Assuming addFileToVault is a function that adds the selected file to a vault
+                                addFileToVault(selectedFilePath, vaultName)
+                            }
+                        })
                     }
+
                 } else {
                     Text("Open Or Create A Vault To Get Started")
 

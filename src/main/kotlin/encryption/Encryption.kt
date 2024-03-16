@@ -91,13 +91,8 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
                 Streams.pipeAll(decryptionStream, outputStream)
                 decryptionStream.close()
                 outputStream.close()
-                try {
-                    with(file) {
-                        delete()
-                    }
-                } catch (e: Exception) {
-                    println(e.message)
-                }
+                with(file) {delete()}
+
             }
             if (file.isDirectory) {
                 decryptDirectory(file.absolutePath, secretKey, passphrase)

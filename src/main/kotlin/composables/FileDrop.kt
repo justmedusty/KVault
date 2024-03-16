@@ -75,7 +75,7 @@ fun dragAndDropDescription(modifier: Modifier, color: Color) {
 fun filePickerDialog(
     showDialog: MutableState<Boolean>, onFileSelected: (String?) -> Unit
 ) {
-    if (showDialog.value) {
+    if (showDialog.value ) {
         Dialog(
             onDismissRequest = { showDialog.value = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
