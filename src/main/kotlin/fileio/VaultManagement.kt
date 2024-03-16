@@ -6,6 +6,7 @@ import encryption.generateKeyPair
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
+import org.pgpainless.exception.WrongPassphraseException
 import java.io.File
 
 
@@ -74,6 +75,9 @@ fun openVault(vaultName: String, password: String): List<File> {
         try {
             decryptDirectory(directory.toString(), privateKey, password)
             directory.listFiles()?.forEach { file ->
+                if (file.name.endsWith(".gpg")) {
+                    throw WrongPassphraseException("You entered an incorrect password!")
+                }
                 fileList.add(file)
             }
             return fileList
@@ -119,4 +123,22 @@ fun isDirectoryEncrypted(directoryPath: String): Boolean {
         }
     }
     return true
+}
+
+
+fun addFileToVault(path: String, vaultName: String): Boolean {
+    val file = File(path)
+
+    val destinationVault =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+
+    return if (destinationVault.exists() && file.exists()) {
+        val destinationFile = File(destinationVault, file.name)
+        file.copyTo(destinationFile, overwrite = true)
+        true
+    } else {
+        false
+
+    }
+
 }

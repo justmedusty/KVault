@@ -19,6 +19,7 @@ import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.dp
 import fileio.closeVault
 import fileio.listAllVaults
+import java.awt.FileDialog
 import java.io.File
 
 @Composable
@@ -93,7 +94,7 @@ fun core() {
                         }
 
                         Button(onClick = {
-                            true.also { java.awt.FileDialog(ComposeWindow()).isVisible = it }
+                            true.also { FileDialog(ComposeWindow()).isVisible = it }
                         }) {
                             Text("File Picker")
                         }
