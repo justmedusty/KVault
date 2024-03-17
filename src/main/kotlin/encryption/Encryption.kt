@@ -58,7 +58,9 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
             if (!file.name.endsWith(".gpg")) {
                 val encryptedFilePath = file.toPath().resolveSibling("${file.name}.gpg").toAbsolutePath().toString()
                 encryptFileStream(privateKey, file.inputStream(), File(encryptedFilePath).outputStream(), passphrase)
-                file.delete()
+                with(file){
+                    delete()
+                }
             }
 
         }
@@ -128,26 +130,4 @@ fun encryptFileStream(
     } catch (e: Exception) {
         println("Error encrypting file: ${e.message}")
     }
-}/*
-fun createZipFile(files: List<File>, destinationPath: String) {
-    val zipOutputStream = ZipOutputStream(FileOutputStream(destinationPath))
-
-    for (file in files) {
-        val zipEntry = ZipEntry(file.name)
-        zipOutputStream.putNextEntry(zipEntry)
-
-        val fileInputStream = file.inputStream()
-        val buffer = ByteArray(1024)
-        var length: Int
-
-        while (fileInputStream.read(buffer).also { length = it } > 0) {
-            zipOutputStream.write(buffer, 0, length)
-        }
-
-        fileInputStream.close()
-        zipOutputStream.closeEntry()
-    }
-
-    zipOutputStream.close()
 }
-*/

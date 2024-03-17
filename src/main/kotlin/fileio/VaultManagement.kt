@@ -8,6 +8,9 @@ import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.pgpainless.exception.WrongPassphraseException
 import java.io.File
+import java.nio.file.Files
+import kotlin.io.path.isDirectory
+import kotlin.io.path.name
 
 
 fun createVault(vaultName: String, password: String): Boolean {

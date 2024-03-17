@@ -6,6 +6,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -46,7 +47,7 @@ fun newVaultForm(
     }
     Dialog(onDismissRequest = { return@Dialog }) {
         Surface {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.CenterHorizontally) {
 
                 TextField(
                     value = vaultName,
@@ -98,7 +99,7 @@ fun openVaultForm(
 
     Dialog(onDismissRequest = { dismissed = true }) {
         Surface {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp),verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.CenterHorizontally) {
                 TextField(
                     value = password,
                     onValueChange = { password = it },
