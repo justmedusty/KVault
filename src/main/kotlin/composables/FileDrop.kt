@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import fileio.addFileToVault
 import javax.swing.JFileChooser
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -72,12 +73,11 @@ fun dragAndDropDescription(modifier: Modifier, color: Color) {
 
 @Composable
 fun filePickerDialog(
-    showDialog: MutableState<Boolean>, onFileSelected: (String?) -> Unit, onDismiss : () -> Unit
+    showDialog: MutableState<Boolean>, onDismiss: () -> Unit, vaultName: String
 ) {
     if (showDialog.value) {
         Dialog(
-            onDismissRequest = { onDismiss() },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+            onDismissRequest = { onDismiss() }, properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             // Here you can place your file picker UI
             Column(
@@ -88,13 +88,12 @@ fun filePickerDialog(
                 val result = fileChooser.showOpenDialog(null)
                 if (result == JFileChooser.APPROVE_OPTION) {
                     val selectedFile = fileChooser.selectedFile
-                    onFileSelected(selectedFile.absolutePath)
-                } else  {
-                    onFileSelected("")
+                    addFileToVault(selectedFile.absolutePath, vaultName)
+                    showDialog.value = false
                 }
                 onDismiss()
-
             }
         }
     }
 }
+

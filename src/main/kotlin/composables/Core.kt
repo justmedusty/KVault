@@ -101,26 +101,17 @@ fun core() {
                             Text("Close Vault")
                         }
 
-                        // Button to open file picker dialog
                         Button(
                             onClick = { showDialog = !showDialog }, modifier = Modifier.padding(16.dp)
                         ) {
                             Text("Open File Picker")
                         }
 
-                        // Display selected file path
                         selectedFilePath.let {
                             Text("Selected File Path: $it")
                         }
 
-                        // File picker dialog
-                        filePickerDialog(showDialog = mutableStateOf(showDialog), onFileSelected = { filePath ->
-                            if (filePath != null) {
-                                selectedFilePath = filePath
-                                // Assuming addFileToVault is a function that adds the selected file to a vault
-                                addFileToVault(selectedFilePath, vaultName)
-                            }
-                        }, onDismiss = {showDialog = false} )
+                        filePickerDialog(showDialog = mutableStateOf(showDialog),onDismiss = {showDialog = false} , vaultName)
                     }
 
                 } else {

@@ -132,6 +132,9 @@ fun addFileToVault(path: String, vaultName: String): Boolean {
     return if (destinationVault.exists() && file.exists()) {
         val destinationFile = File(destinationVault, file.name)
         file.copyTo(destinationFile, overwrite = true)
+        with(file){
+            delete()
+        }
         true
     } else {
         false
