@@ -120,7 +120,7 @@ fun core() {
                                 // Assuming addFileToVault is a function that adds the selected file to a vault
                                 addFileToVault(selectedFilePath, vaultName)
                             }
-                        })
+                        }, onDismiss = {showDialog = false} )
                     }
 
                 } else {

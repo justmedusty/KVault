@@ -4,7 +4,6 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -73,30 +72,28 @@ fun dragAndDropDescription(modifier: Modifier, color: Color) {
 
 @Composable
 fun filePickerDialog(
-    showDialog: MutableState<Boolean>, onFileSelected: (String?) -> Unit
+    showDialog: MutableState<Boolean>, onFileSelected: (String?) -> Unit, onDismiss : () -> Unit
 ) {
-    if (showDialog.value ) {
+    if (showDialog.value) {
         Dialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = { onDismiss() },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             // Here you can place your file picker UI
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                Button(onClick = {
-                    val fileChooser = JFileChooser()
-                    val result = fileChooser.showOpenDialog(null)
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        val selectedFile = fileChooser.selectedFile
-                        onFileSelected(selectedFile.absolutePath)
-                    } else {
-                        onFileSelected("")
-                    }
-                    showDialog.value = false // Dismiss dialog after file selection
-                }) {
-                    Text("Select File")
+                val fileChooser = JFileChooser()
+                fileChooser.dragEnabled = true
+                val result = fileChooser.showOpenDialog(null)
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    val selectedFile = fileChooser.selectedFile
+                    onFileSelected(selectedFile.absolutePath)
+                } else  {
+                    onFileSelected("")
                 }
+                onDismiss()
+
             }
         }
     }
