@@ -15,12 +15,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import enums.Enums
-import fileio.addFileToVault
 import fileio.closeVault
 import fileio.isDirectoryEncrypted
 import fileio.listAllVaults
+import fileio.openVault
+import org.jetbrains.skiko.hostOs
 import java.io.File
 
 @Composable
@@ -41,10 +44,9 @@ fun core() {
         var fileList by remember { mutableStateOf(emptyList<File>()) }
         var vaultName by remember { mutableStateOf("") }
         var showDialog by remember { mutableStateOf(false) }
-        var selectedFilePath by remember { mutableStateOf("") }
 
         Column {
-            TopAppBar(backgroundColor = Color.Black, contentColor = Color.White, title = {
+            TopAppBar( contentColor = Color.White, title = {
                 Image(
                     painter = BitmapPainter(useResource("vault.png", ::loadImageBitmap)),
                     contentDescription = "Logo",
@@ -63,56 +65,77 @@ fun core() {
                     isDialogOpen = !isDialogOpen
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Create Vault")
+
                 }
+
             })
             if (isDialogOpen) newVaultForm(onDismiss = { isDialogOpen = false })
             Column(
-                modifier = Modifier.padding(16.dp).fillMaxSize(),
+                modifier = Modifier.padding(16.dp).fillMaxWidth().align(Alignment.CenterHorizontally),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
 
                 if (password.isNotEmpty()) {
 
-                    Text("Files in Vault $vaultName:")
+                    Text("Files in Vault $vaultName:", modifier = Modifier.fillMaxWidth())
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                         Text("Your password was incorrect!")
                     } else if (fileList.isEmpty()) {
                         Text("No files yet!")
                     } else {
-                        LazyColumn {
-                            Modifier.align(Alignment.CenterHorizontally)
+                        LazyColumn(
+                            modifier = Modifier.align(Alignment.Start).fillMaxSize().defaultMinSize(0.dp,0.dp),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.Top
+                        ) {
                             item {
                                 fileList.forEach { file ->
                                     if (file.isDirectory) {
-                                        Text(file.name + " (Directory)")
+                                        Text(
+                                            file.name + " (Directory)",
+                                            fontStyle = FontStyle.Italic,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
                                     } else {
-                                        Text(file.name)
+                                        Text(file.name, fontWeight = FontWeight.ExtraBold)
                                     }
+                                    Divider()
+                                }
+                            }
+
+                            item {
+
+
+                                Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 15.dp)) {
+                                    Button(onClick = {
+                                        closeVault(vaultName, password)
+                                        password = ""
+                                        fileList = emptyList()
+                                    }) {
+                                        Text("Close Vault")
+                                    }
+
+                                    Button(
+                                        modifier = Modifier.padding(start = 10.dp),
+                                        onClick = { showDialog = !showDialog },
+                                    ) {
+                                        Text("Add File")
+                                    }
+
+                                    filePickerDialog(
+                                        showDialog = mutableStateOf(showDialog),
+                                        onDismiss = { showDialog = false
+                                            fileList = openVault(vaultName,password)
+
+                                                    },
+                                        vaultName
+                                    )
                                 }
                             }
                         }
-                        Button(onClick = {
-                            closeVault(vaultName, password)
-                            password = ""
-                            fileList = emptyList()
-                        }) {
-                            Text("Close Vault")
-                        }
-
-                        Button(
-                            onClick = { showDialog = !showDialog }, modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text("Open File Picker")
-                        }
-
-                        selectedFilePath.let {
-                            Text("Selected File Path: $it")
-                        }
-
-                        filePickerDialog(showDialog = mutableStateOf(showDialog),onDismiss = {showDialog = false} , vaultName)
                     }
+
 
                 } else {
                     Text("Open Or Create A Vault To Get Started")
@@ -139,12 +162,16 @@ fun dropdownList(
             onDismiss = { isDialogOpen = false })
     }
     Column {
+
+
         IconButton(onClick = { expanded = true }) {
+
             Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
         }
 
+
         DropdownMenu(
-            expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth()
+            expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.width(IntrinsicSize.Max)
         ) {
             dropdownItems.forEach { item ->
                 DropdownMenuItem(onClick = {
