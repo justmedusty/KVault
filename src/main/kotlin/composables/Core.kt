@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import enums.Enums
 import fileio.*
 import java.io.File
+import javax.swing.text.StyledEditorKit.FontSizeAction
 
 @Composable
 @Preview
@@ -73,7 +74,7 @@ fun core() {
 
             if (password.isNotEmpty()) {
 
-                Text("Files in Vault $vaultName:", modifier = Modifier.fillMaxWidth())
+                Text("Files in Vault $vaultName:", modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.ExtraBold, fontStyle = FontStyle.Italic)
                 if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                     Text("Your password was incorrect!")
                 } else if (fileList.isEmpty()) {
@@ -112,10 +113,7 @@ fun core() {
                                 Divider()
                             }
                         }
-
                         item {
-
-
                             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 15.dp)) {
                                 Button(onClick = {
                                     closeVault(vaultName, password)
@@ -124,6 +122,13 @@ fun core() {
                                 }) {
 
                                     Text("Close Vault")
+                                }
+
+                                Button(onClick = {
+                                    openVaultInExplorer(vaultName)
+                                }, modifier = Modifier.padding(start = 10.dp)) {
+
+                                    Text("Open Vault")
                                 }
 
                                 Button(
@@ -140,9 +145,15 @@ fun core() {
 
                                     }, vaultName
                                 )
+
                             }
                         }
                     }
+
+
+
+
+
                 }
 
 
@@ -151,12 +162,10 @@ fun core() {
                     Text("Open Or Create A Vault To Get Started")
                 }
 
-
             }
-
         }
+
     }
-    
 }
 
 

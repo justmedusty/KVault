@@ -6,11 +6,8 @@ import encryption.generateKeyPair
 import enums.Enums
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
-import org.pgpainless.exception.WrongPassphraseException
+import java.awt.Desktop
 import java.io.File
-import java.nio.file.Files
-import kotlin.io.path.isDirectory
-import kotlin.io.path.name
 
 
 fun createVault(vaultName: String, password: String): Boolean {
@@ -21,7 +18,7 @@ fun createVault(vaultName: String, password: String): Boolean {
         val created = directory.mkdirs()
 
         if (created) {
-            generateKeyPair(password,vaultName)
+            generateKeyPair(password, vaultName)
 
             val secretKey: PGPSecretKeyRing? = retrieveKeyPair(vaultName)
 
@@ -135,7 +132,7 @@ fun addFileToVault(path: String, vaultName: String): Boolean {
     return if (destinationVault.exists() && file.exists()) {
         val destinationFile = File(destinationVault, file.name)
         file.copyTo(destinationFile, overwrite = true)
-        with(file){
+        with(file) {
             delete()
         }
         true
@@ -144,4 +141,11 @@ fun addFileToVault(path: String, vaultName: String): Boolean {
 
     }
 
+}
+
+fun openVaultInExplorer(vaultName: String) {
+    val vaultPath = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    if (Desktop.isDesktopSupported()) {
+        Desktop.getDesktop().open(File(vaultPath.absolutePath))
+    }
 }
