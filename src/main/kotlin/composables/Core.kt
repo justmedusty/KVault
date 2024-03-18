@@ -15,9 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import enums.Enums
 import fileio.*
 import java.io.File
@@ -40,7 +43,7 @@ fun core() {
     var vaultName by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
-    Column{
+    Column {
         TopAppBar(contentColor = Color.White, title = {
             Image(
                 painter = BitmapPainter(useResource("vault.png", ::loadImageBitmap)),
@@ -65,112 +68,134 @@ fun core() {
 
         })
         if (isDialogOpen) newVaultForm(onDismiss = { isDialogOpen = false })
-        Column(
-            modifier = Modifier.padding(16.dp).fillMaxSize().align(Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.SpaceEvenly,
-        ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        )  {
 
 
-            if (password.isNotEmpty()) {
+            Column(
+                modifier = Modifier.padding(16.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                Text(
-                    "Files in Vault $vaultName:",
-                    modifier = Modifier.fillMaxWidth(),
-                    fontWeight = FontWeight.ExtraBold,
-                    fontStyle = FontStyle.Italic
-                )
-                if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
-                    Text("Your password was incorrect!")
-                } else if (fileList.isEmpty()) {
-                    Text("No files yet!")
-                    Button(
-                        modifier = Modifier.padding(start = 10.dp),
-                        onClick = { showDialog = !showDialog },
-                    ) {
-                        Text("Add File")
-                    }
 
-                    filePickerDialog(
-                        showDialog = mutableStateOf(showDialog), onDismiss = {
-                            showDialog = false
-                            fileList = openVault(vaultName, password)
+                if (password.isNotEmpty()) {
 
-                        }, vaultName
+                    Text(
+                        "Files in Vault $vaultName:",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontStyle = FontStyle.Italic,
                     )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth().padding(start = 16.dp).weight(1f),
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        item {
-                            fileList.forEach { file ->
-                                if (file.isDirectory) {
-                                    Text(
-                                        file.name + " (Directory)",
-                                        fontStyle = FontStyle.Italic,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                } else {
-                                    Text(file.name, fontWeight = FontWeight.ExtraBold)
-                                }
-                                Divider()
-                            }
-                        }
-
-                    }
-                    Box(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(top = 15.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                    Divider()
+                    if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
+                        Text("Your password was incorrect!")
+                    } else if (fileList.isEmpty()) {
+                        Text("No files yet!")
+                        Button(
+                            modifier = Modifier.padding(start = 10.dp),
+                            onClick = { showDialog = !showDialog },
                         ) {
-                            Button(onClick = {
-                                closeVault(vaultName, password)
-                                password = ""
-                                fileList = emptyList()
-                            }) {
+                            Text("Add File")
+                        }
 
-                                Text("Close Vault")
+                        filePickerDialog(
+                            showDialog = mutableStateOf(showDialog), onDismiss = {
+                                showDialog = false
+                                fileList = openVault(vaultName, password)
+
+                            }, vaultName
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f),
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            item {
+                                fileList.forEach { file ->
+                                    if (file.isDirectory) {
+                                        Text(
+                                            file.name + " (Directory)",
+                                            fontStyle = FontStyle.Italic,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+
+                                    } else {
+                                        Row {
+
+                                            Button(
+                                                onClick = { openFile(vaultName, file.name) },
+                                                modifier = Modifier.padding(8.dp),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    backgroundColor = Color.LightGray.copy(alpha = 0.5f)
+                                                )
+                                            ) {
+                                                Text(file.name, fontWeight = FontWeight.ExtraBold)
+                                            }
+                                        }
+                                    }
+
+                                    Divider()
+                                }
                             }
-
-                            Button(onClick = {
-                                openVaultInExplorer(vaultName)
-                            }, modifier = Modifier.padding(start = 10.dp)) {
-
-                                Text("Open Folder")
-                            }
-
-                            Button(
-                                modifier = Modifier.padding(start = 10.dp),
-                                onClick = { showDialog = !showDialog },
-                            ) {
-                                Text("Add File")
-                            }
-
-                            filePickerDialog(
-                                showDialog = mutableStateOf(showDialog), onDismiss = {
-                                    showDialog = false
-                                    fileList = openVault(vaultName, password)
-
-                                }, vaultName
-                            )
-
 
                         }
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(top = 15.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Button(onClick = {
+                                    closeVault(vaultName, password)
+                                    password = ""
+                                    fileList = emptyList()
+                                }) {
+
+                                    Text("Close Vault")
+                                }
+
+                                Button(onClick = {
+                                    openVaultInExplorer(vaultName)
+                                }, modifier = Modifier.padding(start = 10.dp)) {
+
+                                    Text("Open Folder")
+                                }
+
+                                Button(
+                                    modifier = Modifier.padding(start = 10.dp),
+                                    onClick = { showDialog = !showDialog },
+                                ) {
+                                    Text("Add File")
+                                }
+
+                                filePickerDialog(
+                                    showDialog = mutableStateOf(showDialog), onDismiss = {
+                                        showDialog = false
+                                        fileList = openVault(vaultName, password)
+
+                                    }, vaultName
+                                )
+
+
+                            }
+                        }
+
+
                     }
 
 
+                } else {
+                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        Text("Open Or Create A Vault To Get Started")
+                    }
+
                 }
-
-
-            } else {
-                Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text("Open Or Create A Vault To Get Started")
-                }
-
             }
         }
 

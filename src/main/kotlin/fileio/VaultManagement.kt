@@ -142,10 +142,15 @@ fun addFileToVault(path: String, vaultName: String): Boolean {
     }
 
 }
-
 fun openVaultInExplorer(vaultName: String) {
     val vaultPath = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
     if (Desktop.isDesktopSupported()) {
         Desktop.getDesktop().open(File(vaultPath.absolutePath))
+    }
+}
+fun openFile(vaultName: String,fileName : String) {
+    val filePath = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName/$fileName")
+    if (Desktop.isDesktopSupported()) {
+        Desktop.getDesktop().open(File(filePath.absolutePath))
     }
 }
