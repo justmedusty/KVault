@@ -3,7 +3,6 @@ import encryption.encryptDirectory
 import enums.Enums
 import fileio.createVault
 import fileio.isDirectoryEncrypted
-import fileio.listAllKeys
 import fileio.retrieveKeyPair
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -23,7 +22,7 @@ class EncryptionTest {
 
     @Test
     fun createVaultWithNewKeyPair() {
-        createVault("TestVault", "dusty", "12345678", "dustyn@dustyn.com")
+        createVault("TestVault", "12345678")
         assertTrue(isDirectoryEncrypted("TestVault"))
     }
 
@@ -54,38 +53,4 @@ class EncryptionTest {
 
     }
 
-    @Test
-    fun listAllKeysTest() {
-        val list = listAllKeys()
-        assertNotNull(list)
-    }
-
-
-    /*
-        @Test
-        fun testEncryptionWithInvalidPublicKey() {
-            val inputFile = File("input.txt")
-            val outputFile = File("output.gpg")
-            val publicKey = null // Assuming we don't have a valid public key for this test
-            val passphrase = "your_passphrase"
-
-            val result = encryptFile(inputFile, outputFile, publicKey, passphrase)
-
-            assertNotEquals("Success!", result)
-            assertFalse(outputFile.exists())
-        }
-
-        @Test
-        fun testEncryptionWithInvalidPassphrase() {
-            val inputFile = File("input.txt")
-            val outputFile = File("output.gpg")
-            val publicKey = getPublicKey() // You need to implement this method
-            val passphrase = "invalid_passphrase"
-
-            val result = encryptFile(inputFile, outputFile, publicKey, passphrase)
-
-            assertNotEquals("Success!", result)
-            assertFalse(outputFile.exists())
-        }
-        */
 }
