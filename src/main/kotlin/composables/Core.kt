@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import enums.Enums
 import fileio.*
 import java.io.File
-import javax.swing.text.StyledEditorKit.FontSizeAction
 
 @Composable
 @Preview
@@ -41,7 +40,7 @@ fun core() {
     var vaultName by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
-    Column {
+    Column{
         TopAppBar(contentColor = Color.White, title = {
             Image(
                 painter = BitmapPainter(useResource("vault.png", ::loadImageBitmap)),
@@ -67,14 +66,19 @@ fun core() {
         })
         if (isDialogOpen) newVaultForm(onDismiss = { isDialogOpen = false })
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxWidth().align(Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(16.dp).fillMaxSize().align(Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.SpaceEvenly,
         ) {
 
 
             if (password.isNotEmpty()) {
 
-                Text("Files in Vault $vaultName:", modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.ExtraBold, fontStyle = FontStyle.Italic)
+                Text(
+                    "Files in Vault $vaultName:",
+                    modifier = Modifier.fillMaxWidth(),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontStyle = FontStyle.Italic
+                )
                 if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                     Text("Your password was incorrect!")
                 } else if (fileList.isEmpty()) {
@@ -95,9 +99,9 @@ fun core() {
                     )
                 } else {
                     LazyColumn(
-                        modifier = Modifier.align(Alignment.Start).fillMaxSize().defaultMinSize(0.dp, 0.dp),
-                        horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.Top
+                        modifier = Modifier.fillMaxWidth().padding(start = 16.dp).weight(1f),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start
                     ) {
                         item {
                             fileList.forEach { file ->
@@ -113,45 +117,50 @@ fun core() {
                                 Divider()
                             }
                         }
-                        item {
-                            Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 15.dp)) {
-                                Button(onClick = {
-                                    closeVault(vaultName, password)
-                                    password = ""
-                                    fileList = emptyList()
-                                }) {
 
-                                    Text("Close Vault")
-                                }
+                    }
+                    Box(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(top = 15.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(onClick = {
+                                closeVault(vaultName, password)
+                                password = ""
+                                fileList = emptyList()
+                            }) {
 
-                                Button(onClick = {
-                                    openVaultInExplorer(vaultName)
-                                }, modifier = Modifier.padding(start = 10.dp)) {
-
-                                    Text("Open Vault")
-                                }
-
-                                Button(
-                                    modifier = Modifier.padding(start = 10.dp),
-                                    onClick = { showDialog = !showDialog },
-                                ) {
-                                    Text("Add File")
-                                }
-
-                                filePickerDialog(
-                                    showDialog = mutableStateOf(showDialog), onDismiss = {
-                                        showDialog = false
-                                        fileList = openVault(vaultName, password)
-
-                                    }, vaultName
-                                )
-
+                                Text("Close Vault")
                             }
+
+                            Button(onClick = {
+                                openVaultInExplorer(vaultName)
+                            }, modifier = Modifier.padding(start = 10.dp)) {
+
+                                Text("Open Folder")
+                            }
+
+                            Button(
+                                modifier = Modifier.padding(start = 10.dp),
+                                onClick = { showDialog = !showDialog },
+                            ) {
+                                Text("Add File")
+                            }
+
+                            filePickerDialog(
+                                showDialog = mutableStateOf(showDialog), onDismiss = {
+                                    showDialog = false
+                                    fileList = openVault(vaultName, password)
+
+                                }, vaultName
+                            )
+
+
                         }
                     }
-
-
-
 
 
                 }
