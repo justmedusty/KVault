@@ -15,12 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import enums.Enums
 import fileio.*
 import java.io.File
@@ -69,10 +66,8 @@ fun core() {
         })
         if (isDialogOpen) newVaultForm(onDismiss = { isDialogOpen = false })
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        )  {
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+        ) {
 
 
             Column(
