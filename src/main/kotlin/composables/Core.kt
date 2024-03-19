@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,9 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import enums.Enums
 import fileio.*
 import java.io.File
@@ -39,6 +42,7 @@ fun core() {
     var fileList by remember { mutableStateOf(emptyList<File>()) }
     var vaultName by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    var info by remember { mutableStateOf(false) }
 
     Column {
         TopAppBar(contentColor = Color.White, title = {
@@ -51,8 +55,8 @@ fun core() {
         }, modifier = Modifier.align(Alignment.CenterHorizontally), actions = {
             dropdownList(dropdownItems = listAllVaults(),
                 selectedItem = remember { mutableStateOf(selectedItem) },
-                onVaultOpened = { vltnme, pwd, files ->
-                    vaultName = vltnme
+                onVaultOpened = { vaultname, pwd, files ->
+                    vaultName = vaultname
                     password = pwd
                     fileList = files
                 })
@@ -61,6 +65,11 @@ fun core() {
             }) {
                 Icon(Icons.Filled.Add, contentDescription = "Create Vault")
 
+            }
+            IconButton(onClick = {
+                info = !info
+            }) {
+                Icon(Icons.Filled.Info, contentDescription = "Information")
             }
 
         })
@@ -75,18 +84,25 @@ fun core() {
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                if (info) {
+                    information(onDismissRequest = { info = false })
+                }
 
 
                 if (password.isNotEmpty()) {
 
                     Text(
-                        "Files in Vault $vaultName:",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontStyle = FontStyle.Italic,
+                        "Files in Vault $vaultName:", fontWeight = FontWeight.Black, fontSize = 18.sp
                     )
                     Divider()
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
-                        Text("Your password was incorrect!")
+                        Text(
+                            "Your password was incorrect!",
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 32.sp
+                        )
                     } else if (fileList.isEmpty()) {
                         Text("No files yet!")
                         Button(
@@ -197,6 +213,26 @@ fun core() {
     }
 }
 
+@Composable
+fun information(onDismissRequest: () -> Unit) {
+    val openAlertDialog = remember { mutableStateOf(true) }
+
+    when {
+        openAlertDialog.value -> {
+            infoDialog(onDismissRequest = {
+                openAlertDialog.value = false
+                onDismissRequest()
+            },
+                onConfirmation = {},
+                dialogTitle = "About",
+                dialogText = "This app generates password locked PGP keys for you to keep your files safe. You can click on files to open them, you can open the folder as well and add files while it is open." +
+                        " Directories are recursively encrypted so you can store as many nested directories as you would like in your vault. Something important to consider, if you do not click close vault and let it fully finish, " +
+                        "your files will not be fully encrypted. If you have large files it will be slow to encrypt/decrypt your vault. The app will freeze until it is finished, you must let it finish or else your files will be exposed"
+            )
+        }
+    }
+}
+
 
 @Composable
 fun dropdownList(
@@ -236,4 +272,28 @@ fun dropdownList(
             }
         }
     }
+}
+
+@Composable
+fun infoDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(title = {
+        Text(text = dialogTitle)
+    }, text = {
+        Text(text = dialogText)
+    }, onDismissRequest = {
+        onDismissRequest()
+    }, confirmButton = {
+
+    }, dismissButton = {
+        TextButton(onClick = {
+            onDismissRequest()
+        }) {
+            Text("Dismiss")
+        }
+    })
 }
