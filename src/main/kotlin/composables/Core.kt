@@ -36,7 +36,7 @@ fun app() {
 
 @Composable
 fun core() {
-    var selectedItem by remember { mutableStateOf("My Vaults") }
+    val selectedItem by remember { mutableStateOf("My Vaults") }
     var isDialogOpen by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     var fileList by remember { mutableStateOf(emptyList<File>()) }
@@ -219,15 +219,13 @@ fun information(onDismissRequest: () -> Unit) {
 
     when {
         openAlertDialog.value -> {
-            infoDialog(onDismissRequest = {
-                openAlertDialog.value = false
-                onDismissRequest()
-            },
-                onConfirmation = {},
+            infoDialog(
+                onDismissRequest = {
+                    openAlertDialog.value = false
+                    onDismissRequest()
+                },
                 dialogTitle = "About",
-                dialogText = "This app generates password locked PGP keys for you to keep your files safe. You can click on files to open them, you can open the folder as well and add files while it is open." +
-                        " Directories are recursively encrypted so you can store as many nested directories as you would like in your vault. Something important to consider, if you do not click close vault and let it fully finish, " +
-                        "your files will not be fully encrypted. If you have large files it will be slow to encrypt/decrypt your vault. The app will freeze until it is finished, you must let it finish or else your files will be exposed"
+                dialogText = "This app generates password locked PGP keys for you to keep your files safe. You can click on files to open them, you can open the folder as well and add files while it is open." + " Directories are recursively encrypted so you can store as many nested directories as you would like in your vault. Something important to consider, if you do not click close vault and let it fully finish, " + "your files will not be fully encrypted. If you have large files it will be slow to encrypt/decrypt your vault. The app will freeze until it is finished, you must let it finish or else your files will be exposed"
             )
         }
     }
@@ -277,7 +275,6 @@ fun dropdownList(
 @Composable
 fun infoDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
 ) {
