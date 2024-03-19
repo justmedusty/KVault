@@ -91,8 +91,9 @@ fun core() {
                 if (password.isNotEmpty()) {
 
                     Text(
-                        "Files in Vault $vaultName:", fontWeight = FontWeight.Black, fontSize = 18.sp
+                        "Files in Vault: $vaultName:", fontWeight = FontWeight.Black, fontSize = 18.sp
                     )
+                    Text("Click a file name to open it")
                     Divider()
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                         Text(
@@ -104,29 +105,36 @@ fun core() {
                         )
                     } else if (fileList.isEmpty()) {
                         Text("No files yet!")
-                        Button(
-                            modifier = Modifier.padding(start = 10.dp),
-                            onClick = { showDialog = !showDialog },
-                        ) {
-                            Text("Add File")
+                        Row(modifier = Modifier.align(Alignment.CenterHorizontally)){
+                            Button(onClick = {
+                                openVaultInExplorer(vaultName)
+                            }, modifier = Modifier.padding(start = 10.dp)) {
+
+                                Text("Open Folder")
+                            }
+                            Button(
+                                modifier = Modifier.padding(start = 10.dp),
+                                onClick = { showDialog = !showDialog },
+                            ) {
+                                Text("Add File")
+                            }
+
+                            filePickerDialog(
+                                showDialog = mutableStateOf(showDialog), onDismiss = {
+                                    showDialog = false
+                                    fileList = openVault(vaultName, password)
+
+                                }, vaultName
+                            )
+
                         }
 
-                        filePickerDialog(
-                            showDialog = mutableStateOf(showDialog), onDismiss = {
-                                showDialog = false
-                                fileList = openVault(vaultName, password)
-
-                            }, vaultName
-                        )
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f),
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.Start
                         ) {
-                            item {
-                                Text("Click to open", modifier = Modifier.align(Alignment.CenterHorizontally))
-                            }
                             item {
 
                                 fileList.forEach { file ->
