@@ -126,6 +126,10 @@ fun core() {
                             horizontalAlignment = Alignment.Start
                         ) {
                             item {
+                                Text("Click to open", modifier = Modifier.align(Alignment.CenterHorizontally))
+                            }
+                            item {
+
                                 fileList.forEach { file ->
                                     if (file.isDirectory) {
                                         Text(
@@ -147,10 +151,12 @@ fun core() {
                                                 Text(file.name, fontWeight = FontWeight.ExtraBold)
                                             }
                                         }
+                                        Divider()
                                     }
 
-                                    Divider()
+
                                 }
+
                             }
 
                         }
@@ -203,7 +209,9 @@ fun core() {
 
                 } else {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Text("Open Or Create A Vault To Get Started")
+                        Text(
+                            "Open Or Create A Vault To Get Started", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold
+                        )
                     }
 
                 }
