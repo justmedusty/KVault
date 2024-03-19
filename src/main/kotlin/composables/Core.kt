@@ -43,7 +43,6 @@ fun core() {
     var vaultName by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
     var info by remember { mutableStateOf(false) }
-
     Column {
         TopAppBar(contentColor = Color.White, title = {
             Image(
