@@ -197,10 +197,10 @@ fun core() {
                 } else {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         Box(modifier = Modifier.padding(all = 175.dp).background(color = Color.LightGray, shape = RoundedCornerShape(20.dp))) {
-                            Box(modifier = Modifier.padding(all = 50.dp)) {
+                            Box(modifier = Modifier.padding(all = 10.dp)) {
                                 Text(
                                     "Open Or Create A Vault To Get Started",
-                                    fontSize = 20.sp,
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.ExtraBold
                                 )
                             }
