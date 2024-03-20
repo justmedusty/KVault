@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import enums.Enums
 import fileio.*
+import org.bouncycastle.math.raw.Mod
 import java.io.File
 
 @Composable
@@ -33,7 +34,7 @@ import java.io.File
 fun app() {
 
     MaterialTheme(
-        typography = Typography(defaultFontFamily = FontFamily.Cursive)
+        typography = Typography(defaultFontFamily = FontFamily.Serif)
     ) {
         core()
     }
@@ -79,7 +80,7 @@ fun core() {
         })
         if (isDialogOpen) newVaultForm(onDismiss = { isDialogOpen = false })
         Box(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp).background(color = Color.Transparent),
         ) {
 
 
@@ -95,8 +96,9 @@ fun core() {
 
                 if (password.isNotEmpty()) {
                     Row(
-                        modifier = Modifier.padding(top = 5.dp).fillMaxWidth()
-                            .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(10.dp)), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.Center
+                        modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.Center
                     ) {
                         Column(
                             modifier = Modifier.padding(6.dp),
@@ -113,7 +115,7 @@ fun core() {
                     }
 
 
-                    Divider()
+                    Divider(Modifier.border(10.dp,Color.Black))
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                         Text(
                             "Your password was incorrect!",
@@ -124,7 +126,7 @@ fun core() {
                         )
                     } else {
                         LazyColumn(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f),
+                            modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f).fillMaxHeight(),
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.Start
                         ) {
@@ -164,8 +166,7 @@ fun core() {
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         ) {
                             Row(
-                                modifier = Modifier.padding(top = 5.dp).fillMaxWidth()
-                                    .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(10.dp)),
+                                modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
@@ -178,14 +179,13 @@ fun core() {
 
                                         Text("Close Vault")
                                     }
-                                } else
+                                }
+                                Button(onClick = {
+                                    openVaultInExplorer(vaultName)
+                                }, modifier = Modifier.padding(start = 10.dp)) {
 
-                                    Button(onClick = {
-                                        openVaultInExplorer(vaultName)
-                                    }, modifier = Modifier.padding(start = 10.dp)) {
-
-                                        Text("Open Folder")
-                                    }
+                                    Text("Open Folder")
+                                }
 
                                 Button(
                                     modifier = Modifier.padding(start = 10.dp),
