@@ -3,6 +3,7 @@ package composables
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -93,11 +94,25 @@ fun core() {
 
 
                 if (password.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.padding(top = 5.dp).fillMaxWidth()
+                            .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(10.dp)), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.Center
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(6.dp),
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Files in Vault '$vaultName':", fontWeight = FontWeight.Black, fontSize = 18.sp
+                            )
+                            Text("Click a file name to open it", modifier = Modifier.padding(bottom = 15.dp))
 
-                    Text(
-                        "Files in Vault '$vaultName':", fontWeight = FontWeight.Black, fontSize = 18.sp
-                    )
-                    Text("Click a file name to open it")
+
+                        }
+                    }
+
+
                     Divider()
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                         Text(
@@ -149,7 +164,8 @@ fun core() {
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         ) {
                             Row(
-                                modifier = Modifier.padding(top = 15.dp),
+                                modifier = Modifier.padding(top = 5.dp).fillMaxWidth()
+                                    .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(10.dp)),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
@@ -196,7 +212,10 @@ fun core() {
 
                 } else {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Box(modifier = Modifier.padding(all = 175.dp).background(color = Color.LightGray, shape = RoundedCornerShape(20.dp))) {
+                        Box(
+                            modifier = Modifier.padding(all = 175.dp)
+                                .background(color = Color.LightGray, shape = RoundedCornerShape(20.dp))
+                        ) {
                             Box(modifier = Modifier.padding(all = 10.dp)) {
                                 Text(
                                     "Open Or Create A Vault To Get Started",
@@ -227,7 +246,7 @@ fun information(onDismissRequest: () -> Unit) {
                     onDismissRequest()
                 },
                 dialogTitle = "About",
-                dialogText = "This app generates password locked PGP keys for you to keep your files safe. You can click on files to open them, you can open the folder as well and add files while it is open." + " Directories are recursively encrypted so you can store as many nested directories as you would like in your vault. Something important to consider, if you do not click close vault and let it fully finish, " + "your files will not be fully encrypted. If you have large files it will be slow to encrypt/decrypt your vault. The app will freeze until it is finished, you must let it finish or else your files will be exposed"
+                dialogText = "This app generates password locked PGP keys for you to keep your files safe. You can click on files to open them, you can open the folder as well and add files while it is open." + " Directories are recursively encrypted so you can store as many nested directories as you would like in your vault. Something important to consider, if you do not click close vault and let it fully finish, " + "your files will not be fully encrypted. If you have large files it will be slow to encrypt/decrypt your vault. The app will freeze until it is finished, you must let it finish or else your files will be exposed."
             )
         }
     }
