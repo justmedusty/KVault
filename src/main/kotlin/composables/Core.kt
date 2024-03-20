@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import enums.Enums
 import fileio.*
-import org.bouncycastle.math.raw.Mod
 import java.io.File
 
 @Composable
@@ -34,7 +33,7 @@ import java.io.File
 fun app() {
 
     MaterialTheme(
-        typography = Typography(defaultFontFamily = FontFamily.Serif)
+        typography = Typography(defaultFontFamily = FontFamily.Monospace)
     ) {
         core()
     }
@@ -115,7 +114,7 @@ fun core() {
                     }
 
 
-                    Divider(Modifier.border(10.dp,Color.Black))
+                    Divider(Modifier.border(10.dp, Color.Black))
                     if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
                         Text(
                             "Your password was incorrect!",
@@ -126,7 +125,8 @@ fun core() {
                         )
                     } else {
                         LazyColumn(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f).fillMaxHeight(),
+                            modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f)
+                                .fillMaxHeight(),
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.Start
                         ) {
@@ -162,8 +162,9 @@ fun core() {
                             }
 
                         }
+                        Divider(Modifier.border(10.dp, Color.Black))
                         Box(
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top= 15.dp)
                         ) {
                             Row(
                                 modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
