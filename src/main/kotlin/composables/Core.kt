@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -195,12 +196,14 @@ fun core() {
 
                 } else {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Box(modifier = Modifier.padding(all = 50.dp).background(Color.LightGray)) {
-                            Text(
-                                "Open Or Create A Vault To Get Started",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
+                        Box(modifier = Modifier.padding(all = 175.dp).background(color = Color.LightGray, shape = RoundedCornerShape(20.dp))) {
+                            Box(modifier = Modifier.padding(all = 50.dp)) {
+                                Text(
+                                    "Open Or Create A Vault To Get Started",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                            }
                         }
 
                     }
