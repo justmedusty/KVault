@@ -2,6 +2,7 @@ package composables
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
@@ -29,7 +30,9 @@ import java.io.File
 @Preview
 fun app() {
 
-    MaterialTheme {
+    MaterialTheme(
+        typography = Typography(defaultFontFamily = FontFamily.Cursive)
+    ) {
         core()
     }
 }
@@ -91,7 +94,7 @@ fun core() {
                 if (password.isNotEmpty()) {
 
                     Text(
-                        "Files in Vault: $vaultName:", fontWeight = FontWeight.Black, fontSize = 18.sp
+                        "Files in Vault '$vaultName':", fontWeight = FontWeight.Black, fontSize = 18.sp
                     )
                     Text("Click a file name to open it")
                     Divider()
@@ -103,32 +106,6 @@ fun core() {
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp
                         )
-                    } else if (fileList.isEmpty()) {
-                        Text("No files yet!")
-                        Row(modifier = Modifier.align(Alignment.CenterHorizontally)){
-                            Button(onClick = {
-                                openVaultInExplorer(vaultName)
-                            }, modifier = Modifier.padding(start = 10.dp)) {
-
-                                Text("Open Folder")
-                            }
-                            Button(
-                                modifier = Modifier.padding(start = 10.dp),
-                                onClick = { showDialog = !showDialog },
-                            ) {
-                                Text("Add File")
-                            }
-
-                            filePickerDialog(
-                                showDialog = mutableStateOf(showDialog), onDismiss = {
-                                    showDialog = false
-                                    fileList = openVault(vaultName, password)
-
-                                }, vaultName
-                            )
-
-                        }
-
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f),
@@ -175,21 +152,23 @@ fun core() {
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                Button(onClick = {
-                                    closeVault(vaultName, password)
-                                    password = ""
-                                    fileList = emptyList()
-                                }) {
+                                if (fileList.isNotEmpty()) {
+                                    Button(onClick = {
+                                        closeVault(vaultName, password)
+                                        password = ""
+                                        fileList = emptyList()
+                                    }) {
 
-                                    Text("Close Vault")
-                                }
+                                        Text("Close Vault")
+                                    }
+                                } else
 
-                                Button(onClick = {
-                                    openVaultInExplorer(vaultName)
-                                }, modifier = Modifier.padding(start = 10.dp)) {
+                                    Button(onClick = {
+                                        openVaultInExplorer(vaultName)
+                                    }, modifier = Modifier.padding(start = 10.dp)) {
 
-                                    Text("Open Folder")
-                                }
+                                        Text("Open Folder")
+                                    }
 
                                 Button(
                                     modifier = Modifier.padding(start = 10.dp),
@@ -216,9 +195,14 @@ fun core() {
 
                 } else {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Text(
-                            "Open Or Create A Vault To Get Started", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold
-                        )
+                        Box(modifier = Modifier.padding(all = 50.dp).background(Color.LightGray)) {
+                            Text(
+                                "Open Or Create A Vault To Get Started",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+
                     }
 
                 }
