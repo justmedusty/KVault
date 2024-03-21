@@ -22,7 +22,7 @@ dependencies {
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
-    implementation("org.pgpainless:pgpainless-core:1.6.6")
+    implementation("org.pgpainless:pgpainless-core:1.6.4")
     implementation("org.mindrot:jbcrypt:0.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
@@ -39,9 +39,19 @@ compose.desktop {
             packageName = "KVault"
             packageVersion = "1.0.0"
             modules("java.instrument", "java.naming", "java.sql", "jdk.unsupported")
+            macOS {
+            }
+            windows {
+                iconFile.set(project.file("src/main/resources/icon.ico"))
+            }
+            linux {
+                iconFile.set(project.file("src/main/resources/icon.png"))
+            }
         }
 
+
     }
+
 
 }
 

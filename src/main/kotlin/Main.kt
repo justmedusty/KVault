@@ -5,6 +5,7 @@ import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import composables.app
+import org.jetbrains.skia.Drawable
 
 
 fun main() = application {
@@ -14,6 +15,7 @@ fun main() = application {
             Item("Quit App", onClick = ::exitApplication)
         }
     )
+
     Window(onCloseRequest = ::exitApplication,
         title = "KVault", focusable = true, icon = BitmapPainter(useResource("icon.png", ::loadImageBitmap)),
     ) {
