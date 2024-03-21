@@ -14,15 +14,7 @@ repositories {
     google()
 }
 tasks.test {
-    // Discover and execute JUnit4-based tests
-    useJUnit()
 
-    // Discover and execute TestNG-based tests
-    useTestNG()
-
-    // Discover and execute JUnit Platform-based (JUnit 5, JUnit Jupiter) tests
-    // Note that JUnit 5 has the ability to execute JUnit 4 tests as well
-    useJUnitPlatform()
 }
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
@@ -34,6 +26,7 @@ dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    implementation("org.slf4j:slf4j-api:2.0.12")
 
 }
 
@@ -45,7 +38,10 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KVault"
             packageVersion = "1.0.0"
+            modules("java.instrument", "java.naming", "java.sql", "jdk.unsupported")
         }
+
     }
+
 }
 

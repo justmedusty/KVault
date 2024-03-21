@@ -110,6 +110,7 @@ fun core() {
                             Text("Click a file name to open it", modifier = Modifier.padding(bottom = 15.dp))
 
 
+
                         }
                     }
 
