@@ -110,7 +110,6 @@ fun core() {
                             Text("Click a file name to open it", modifier = Modifier.padding(bottom = 15.dp))
 
 
-
                         }
                     }
 
@@ -165,7 +164,7 @@ fun core() {
                         }
                         Divider(Modifier.border(10.dp, Color.Black))
                         Box(
-                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top= 15.dp)
+                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 15.dp)
                         ) {
                             Row(
                                 modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
@@ -217,15 +216,12 @@ fun core() {
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Box(
-                            modifier = Modifier
-                                .padding(all = 175.dp)
+                            modifier = Modifier.padding(all = 175.dp)
                                 .background(color = Color.LightGray, shape = RoundedCornerShape(20.dp))
                         ) {
                             Box(modifier = Modifier.padding(all = 10.dp)) {
                                 Text(
-                                    Enums.NO_VAULTS_MSG.value,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.ExtraBold
+                                    Enums.NO_VAULTS_MSG.value, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold
                                 )
                             }
                         }
@@ -266,10 +262,15 @@ fun dropdownList(
     var isDialogOpen by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var vaultName by remember { mutableStateOf("") }
-    if (isDialogOpen) {
-        openVaultForm(vaultName = vaultName,
-            onVaultOpened = { _, password, files -> onVaultOpened(vaultName, password, files) },
-            onDismiss = { isDialogOpen = false })
+    when {
+        isDialogOpen -> {
+            if (vaultName != "You have no vaults") {
+                openVaultForm(vaultName = vaultName,
+                    onVaultOpened = { _, password, files -> onVaultOpened(vaultName, password, files) },
+                    onDismiss = { isDialogOpen = false })
+            }
+
+        }
     }
     Column {
 
