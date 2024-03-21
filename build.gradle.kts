@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.dustyn"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -40,12 +40,16 @@ compose.desktop {
             packageVersion = "1.0.0"
             modules("java.instrument", "java.naming", "java.sql", "jdk.unsupported")
             macOS {
+                packageName = "KVault4MacOS"
             }
             windows {
                 iconFile.set(project.file("src/main/resources/icon.ico"))
+                packageName = "KVault4Windows"
+                dirChooser = true
             }
             linux {
                 iconFile.set(project.file("src/main/resources/icon.png"))
+                packageName ="KVault4Linux"
             }
         }
 

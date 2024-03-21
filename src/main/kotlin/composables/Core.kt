@@ -213,9 +213,12 @@ fun core() {
 
 
                 } else {
-                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Row(
+                        horizontalArrangement = Arrangement.Start
+                    ) {
                         Box(
-                            modifier = Modifier.padding(all = 175.dp)
+                            modifier = Modifier
+                                .padding(all = 175.dp)
                                 .background(color = Color.LightGray, shape = RoundedCornerShape(20.dp))
                         ) {
                             Box(modifier = Modifier.padding(all = 10.dp)) {
@@ -226,7 +229,6 @@ fun core() {
                                 )
                             }
                         }
-
                     }
 
                 }
