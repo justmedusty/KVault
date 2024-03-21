@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import enums.Enums
 import fileio.createVault
 import fileio.openVault
 import java.io.File
@@ -96,33 +97,36 @@ fun openVaultForm(
         onDismiss()
         return
     }
+    if(fileList.isNotEmpty()){
 
-    Dialog(onDismissRequest = { dismissed = true }) {
-        Surface {
-            Column(modifier = Modifier.padding(16.dp),verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.CenterHorizontally) {
-                TextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password for vault $vaultName") },
-                    modifier = Modifier.padding(top = 10.dp),
-                    visualTransformation = PasswordVisualTransformation(),
-                )
-                Row(modifier = Modifier.padding(top = 10.dp)) {
-                    Button(onClick = {
-                        fileList = openVault(vaultName, password)
-                        println(fileList)
-                        onVaultOpened(vaultName, password, fileList)
-                        dismissed = true
-                    }) {
-                        Text("Submit")
-                    }
-                    Spacer(modifier = Modifier.width(20.dp))
+        Dialog(onDismissRequest = { dismissed = true }) {
+            Surface {
+                Column(modifier = Modifier.padding(16.dp),verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.CenterHorizontally) {
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password for vault $vaultName") },
+                        modifier = Modifier.padding(top = 10.dp),
+                        visualTransformation = PasswordVisualTransformation(),
+                    )
+                    Row(modifier = Modifier.padding(top = 10.dp)) {
+                        Button(onClick = {
+                            fileList = openVault(vaultName, password)
+                            println(fileList)
+                            onVaultOpened(vaultName, password, fileList)
+                            dismissed = true
+                        }) {
+                            Text("Submit")
+                        }
+                        Spacer(modifier = Modifier.width(20.dp))
 
-                    Button(onClick = { dismissed = true }) {
-                        Text("Cancel")
+                        Button(onClick = { dismissed = true }) {
+                            Text("Cancel")
+                        }
                     }
                 }
             }
         }
-    }
+    }else onDismiss()
+
 }

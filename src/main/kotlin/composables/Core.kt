@@ -223,7 +223,7 @@ fun core() {
                         ) {
                             Box(modifier = Modifier.padding(all = 10.dp)) {
                                 Text(
-                                    "Open Or Create A Vault To Get Started",
+                                    Enums.NO_VAULTS_MSG.value,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.ExtraBold
                                 )
@@ -278,7 +278,6 @@ fun dropdownList(
 
             Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown")
         }
-
 
         DropdownMenu(
             expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.width(IntrinsicSize.Max)
