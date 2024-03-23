@@ -76,6 +76,7 @@ fun updateFileList(vaultName: String) : List<File>{
 }
 
 fun openVault(vaultName: String, password: String): List<File> {
+    Thread.sleep(500)
     val fileList = mutableListOf<File>()
     val directory =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
@@ -129,6 +130,15 @@ fun isDirectoryEncrypted(directoryPath: String): Boolean {
         }
     }
     return true
+}
+
+fun isDirectoryEncryptedTest(directoryPath: String): Boolean {
+    val vault = File(directoryPath)
+    val files: List<File>? = vault.listFiles()?.toList()
+    return if (files != null) {
+        files.size == 6
+    }
+    else false
 }
 
 

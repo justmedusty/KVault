@@ -14,6 +14,11 @@ repositories {
     google()
 }
 tasks.test {
+    useJUnitPlatform()
+    testLogging{
+        events("passed","skipped","failed")
+    }
+
 
 }
 dependencies {

@@ -73,6 +73,7 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
 fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphrase: String) {
     val directory = Paths.get(directoryPath)
     val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
+    val filesToDelete = emptyList<File>()
 
     files.forEach { file ->
 
@@ -82,7 +83,7 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
 
             with(file) {
                 if (!delete()) {
-                    deleteOnExit()
+                   deleteOnExit()
                 }
             }
         }
@@ -109,8 +110,10 @@ fun decryptFileStream(
 
         val decryptionStream: DecryptionStream =
             PGPainless.decryptAndOrVerify().onInputStream(inputStream).withOptions(options)
-        Streams.pipeAll(decryptionStream, outputStream)
+        decryptionStream.copyTo(outputStream)
+
         decryptionStream.close()
+        inputStream.close()
         outputStream.close()
     } catch (e: Exception) {
         e.printStackTrace()
@@ -137,6 +140,9 @@ fun encryptFileStream(
                 input.copyTo(encryption)
             }
         }
+        inputStream.close()
+        outputStream.close()
+        encryptionStream.close()
     } catch (e: Exception) {
         println("Error encrypting file: ${e.message}")
     }
