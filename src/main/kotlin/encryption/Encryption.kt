@@ -1,6 +1,5 @@
 package encryption
 
-import fileio.isDirectoryEncrypted
 import fileio.storeKeyPair
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.bouncycastle.util.io.Streams
@@ -21,7 +20,6 @@ import org.pgpainless.key.generation.type.rsa.RsaLength
 import org.pgpainless.key.protection.SecretKeyRingProtector
 import org.pgpainless.util.Passphrase.fromPassword
 import java.io.File
-import java.io.FileInputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
@@ -59,7 +57,7 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
             if (!file.name.endsWith(".gpg")) {
                 val encryptedFilePath = file.toPath().resolveSibling("${file.name}.gpg").toAbsolutePath().toString()
                 encryptFileStream(privateKey, file.inputStream(), File(encryptedFilePath).outputStream(), passphrase)
-                with(file){
+                with(file) {
                     delete()
                 }
             }
@@ -76,36 +74,46 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
     val directory = Paths.get(directoryPath)
     val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
 
+    files.forEach { file ->
+
+        if (file.name.endsWith(".gpg")) {
+            val decryptedFile = File(file.parent, file.nameWithoutExtension)
+            decryptFileStream(secretKey, file.inputStream(), decryptedFile.outputStream(), passphrase)
+
+            with(file) {
+                if (!delete()) {
+                    deleteOnExit()
+                }
+            }
+        }
+
+
+
+
+        if (file.isDirectory) {
+            decryptDirectory(file.absolutePath, secretKey, passphrase)
+        }
+
+    }
+
+}
+
+fun decryptFileStream(
+    secretKey: PGPSecretKeyRing, inputStream: InputStream, outputStream: OutputStream, passphrase: String
+) {
     try {
+
         val secretKeyProtector = SecretKeyRingProtector.unlockAnyKeyWith(fromPassword(passphrase))
 
-        files.forEach { file ->
+        val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
 
-            if (file.name.contains(".gpg")) {
-                val decryptedFile = File(file.parent, file.nameWithoutExtension)
-
-
-                val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
-
-                val encryptedInputStream = FileInputStream(file)
-                val decryptionStream: DecryptionStream =
-                    PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
-
-                val outputStream = decryptedFile.outputStream()
-                Streams.pipeAll(decryptionStream, outputStream)
-                decryptionStream.close()
-                outputStream.close()
-                with(file) {delete()}
-
-            }
-            if (file.isDirectory) {
-                decryptDirectory(file.absolutePath, secretKey, passphrase)
-            }
-
-
-        }
+        val decryptionStream: DecryptionStream =
+            PGPainless.decryptAndOrVerify().onInputStream(inputStream).withOptions(options)
+        Streams.pipeAll(decryptionStream, outputStream)
+        decryptionStream.close()
+        outputStream.close()
     } catch (e: Exception) {
-        println(e.printStackTrace())
+        e.printStackTrace()
     }
 
 }
