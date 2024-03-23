@@ -76,7 +76,11 @@ fun updateFileList(vaultName: String) : List<File>{
 }
 
 fun openVault(vaultName: String, password: String): List<File> {
+
+    //This Thread.sleep is required because motherfucking microsoft likes to completely lock a file when in use by a process and deny any attempt at deletion
+    //Not required on linux because there is a queue for actions while a process has a lock on the file and it will just exec afterwards
     Thread.sleep(500)
+
     val fileList = mutableListOf<File>()
     val directory =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
