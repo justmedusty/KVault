@@ -1,5 +1,6 @@
 package encryption
 
+import fileio.isDirectoryEncrypted
 import fileio.storeKeyPair
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.bouncycastle.util.io.Streams
@@ -64,6 +65,7 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
             }
 
         }
+
     } catch (e: Exception) {
         println("Error encrypting files: ${e.message}")
     }

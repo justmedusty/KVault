@@ -66,6 +66,15 @@ fun listAllVaults(): List<String> {
     return responseList
 }
 
+fun updateFileList(vaultName: String) : List<File>{
+    val fileList = mutableListOf<File>()
+    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+   directory.listFiles()?.forEach { file ->
+       fileList.add(file)
+   }
+    return fileList
+}
+
 fun openVault(vaultName: String, password: String): List<File> {
     val fileList = mutableListOf<File>()
     val directory =

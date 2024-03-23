@@ -173,6 +173,7 @@ fun core() {
                             ) {
                                 if (fileList.isNotEmpty()) {
                                     Button(onClick = {
+                                        fileList = updateFileList(vaultName)
                                         closeVault(vaultName, password)
                                         password = ""
                                         fileList = emptyList()
@@ -183,6 +184,7 @@ fun core() {
                                 }
                                 Button(onClick = {
                                     openVaultInExplorer(vaultName)
+                                    fileList = updateFileList(vaultName)
                                 }, modifier = Modifier.padding(start = 10.dp)) {
 
                                     Text("Open Folder")
