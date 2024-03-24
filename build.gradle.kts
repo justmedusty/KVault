@@ -42,19 +42,19 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KVault"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
             modules("java.instrument", "java.naming", "java.sql", "jdk.unsupported")
             macOS {
-                packageName = "KVault4MacOS"
+                dockName = "KVault"
             }
             windows {
                 iconFile.set(project.file("src/main/resources/icon.ico"))
-                packageName = "KVault4Windows"
                 dirChooser = true
+                menu = true
+
             }
             linux {
                 iconFile.set(project.file("src/main/resources/icon.png"))
-                packageName ="KVault4Linux"
             }
         }
 

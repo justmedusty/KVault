@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,11 @@ fun core() {
                     password = pwd
                     fileList = files
                 })
+            IconButton(onClick = {
+                fileList = updateFileList(vaultName)
+            }){
+                Icon(Icons.Filled.Refresh, contentDescription = "Refresh files")
+            }
             IconButton(onClick = {
                 isDialogOpen = !isDialogOpen
             }) {
