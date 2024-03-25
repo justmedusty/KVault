@@ -54,7 +54,7 @@ fun listAllVaults(): List<String> {
     val responseList = mutableListOf<String>()
     if (!vaultList.isNullOrEmpty()) {
         for (file in vaultList) {
-            if (file.isDirectory()) {
+            if (file.isDirectory() && file.extension != ".gpg") {
                 responseList.add(file.name)
             }
         }
