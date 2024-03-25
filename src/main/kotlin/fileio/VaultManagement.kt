@@ -89,7 +89,13 @@ fun openVault(vaultName: String, password: String): List<File> {
         try {
             decryptDirectory(directory.toString(), privateKey, password)
             directory.listFiles()?.forEach { file ->
-                fileList.add(file)
+
+                //The way the windows kernel handles file locks means that if there is a request to delete the file while a process is still accessing the file it will deny
+                //Whereas linux will add this to queue to be executed once the file has been freed up. Hence this will help mask that issue on windows computers. It only applies
+                //To decryption so it is safe just a visual nuisance
+                if(file.extension != ".gpg"){
+                    fileList.add(file)
+                }
             }
             return fileList
         } catch (e: Exception) {
