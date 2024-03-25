@@ -12,6 +12,7 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
+
 }
 tasks.test {
     useJUnitPlatform()
@@ -21,6 +22,7 @@ tasks.test {
 
 
 }
+
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
     // compose.desktop.currentOs should be used in launcher-sourceSet
@@ -37,12 +39,15 @@ dependencies {
 
 
 compose.desktop {
+
     application {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KVault"
             packageVersion = "1.0.1"
+            description = "A multiplatform encrypted vault application"
+            licenseFile.set(project.file("gpl-3.0.txt"))
             modules("java.instrument", "java.naming", "java.sql", "jdk.unsupported")
             macOS {
                 dockName = "KVault"
@@ -55,11 +60,15 @@ compose.desktop {
             }
             linux {
                 iconFile.set(project.file("src/main/resources/icon.png"))
+                debMaintainer = "dustyngibb@protonmail.com"
+                appCategory = "Privacy"
             }
         }
 
 
     }
+
+
 
 
 }
