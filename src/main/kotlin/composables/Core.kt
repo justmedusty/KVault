@@ -121,7 +121,7 @@ fun core() {
 
 
                     Divider(Modifier.border(10.dp, Color.Black))
-                    if (fileList.isNotEmpty() && isDirectoryEncrypted(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")) {
+                    if (fileList.isEmpty() && !isVaultEmpty(vaultName)) {
                         Text(
                             "Your password was incorrect!",
                             fontStyle = FontStyle.Italic,

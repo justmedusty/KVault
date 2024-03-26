@@ -8,6 +8,8 @@ import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import java.awt.Desktop
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 
 
 fun createVault(vaultName: String, password: String): Boolean {
@@ -66,12 +68,13 @@ fun listAllVaults(): List<String> {
     return responseList
 }
 
-fun updateFileList(vaultName: String) : List<File>{
+fun updateFileList(vaultName: String): List<File> {
     val fileList = mutableListOf<File>()
-    val directory = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
-   directory.listFiles()?.forEach { file ->
-       fileList.add(file)
-   }
+    val directory =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    directory.listFiles()?.forEach { file ->
+        fileList.add(file)
+    }
     return fileList
 }
 
@@ -93,7 +96,7 @@ fun openVault(vaultName: String, password: String): List<File> {
                 //The way the windows kernel handles file locks means that if there is a request to delete the file while a process is still accessing the file it will deny
                 //Whereas linux will add this to queue to be executed once the file has been freed up. Hence this will help mask that issue on windows computers. It only applies
                 //To decryption so it is safe just a visual nuisance
-                if(!file.name.contains("gpg")){
+                if (!file.name.contains("gpg")) {
                     fileList.add(file)
                 }
             }
@@ -147,8 +150,7 @@ fun isDirectoryEncryptedTest(directoryPath: String): Boolean {
     val files: List<File>? = vault.listFiles()?.toList()
     return if (files != null) {
         files.size == 6
-    }
-    else false
+    } else false
 }
 
 
@@ -169,16 +171,26 @@ fun addFileToVault(path: String, vaultName: String): Boolean {
         false
 
     }
-
 }
+
+fun isVaultEmpty(vaultName: String): Boolean {
+    val vaultPath =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName").toPath()
+    val vaultList: List<Path> = Files.walk(vaultPath).toList()
+    return vaultList.isEmpty()
+}
+
 fun openVaultInExplorer(vaultName: String) {
-    val vaultPath = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    val vaultPath =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
     if (Desktop.isDesktopSupported()) {
         Desktop.getDesktop().open(File(vaultPath.absolutePath))
     }
 }
-fun openFile(vaultName: String,fileName : String) {
-    val filePath = File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName/$fileName")
+
+fun openFile(vaultName: String, fileName: String) {
+    val filePath =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName/$fileName")
     if (Desktop.isDesktopSupported()) {
         Desktop.getDesktop().open(File(filePath.absolutePath))
     }

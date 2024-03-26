@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class EncryptionTest {
+
     private val testFolder =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/TestVault")
     private val outputFile =
@@ -81,5 +82,6 @@ class EncryptionTest {
         assertTrue(runCount == 100)
         println("Failure count is $failureCount")
     }
+
 
 }
