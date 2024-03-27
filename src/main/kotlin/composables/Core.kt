@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import enums.Enums
 import fileio.*
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 @Composable
@@ -66,7 +67,10 @@ fun core() {
                     fileList = files
                 })
             IconButton(onClick = {
-                fileList = updateFileList(vaultName)
+                if(vaultName.isNotEmpty()){
+                    fileList = updateFileList(vaultName)
+                }
+
             }){
                 Icon(Icons.Filled.Refresh, contentDescription = "Refresh files")
             }
@@ -129,7 +133,14 @@ fun core() {
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp
                         )
-                    } else {
+                    }
+                /*    else if(!isVaultEmpty(vaultName) && fileList.size != getFileCount(vaultName)){
+
+                        fileList = updateFileList(vaultName)
+                    }
+
+                 */
+                    else {
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(fraction = 0.55f).padding(start = 16.dp).weight(1f)
                                 .fillMaxHeight(),
@@ -183,6 +194,7 @@ fun core() {
                                         closeVault(vaultName, password)
                                         password = ""
                                         fileList = emptyList()
+                                        vaultName = ""
                                     }) {
 
                                         Text("Close Vault")

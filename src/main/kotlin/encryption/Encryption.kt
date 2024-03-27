@@ -1,5 +1,6 @@
 package encryption
 
+import fileio.deleteAllDoubleFiles
 import fileio.storeKeyPair
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.bouncycastle.util.io.Streams
@@ -97,6 +98,7 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
                 Streams.pipeAll(decryptionStream, outputStream)
                 decryptionStream.close()
                 outputStream.close()
+                file.inputStream().close()
                 with(file) {
                     if (!delete()) {
                         deleteOnExit()
@@ -112,6 +114,7 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
     } catch (e: Exception) {
         println(e.printStackTrace())
     }
+    return
 
 }
 

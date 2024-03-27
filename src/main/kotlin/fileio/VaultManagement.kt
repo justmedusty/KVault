@@ -4,12 +4,15 @@ import encryption.decryptDirectory
 import encryption.encryptDirectory
 import encryption.generateKeyPair
 import enums.Enums
+import kotlinx.coroutines.runBlocking
 import org.bouncycastle.openpgp.PGPException
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import java.awt.Desktop
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
+import kotlin.io.path.name
 
 
 fun createVault(vaultName: String, password: String): Boolean {
@@ -81,7 +84,7 @@ fun updateFileList(vaultName: String): List<File> {
 fun openVault(vaultName: String, password: String): List<File> {
 
     //This Thread.sleep is required because motherfucking microsoft likes to completely lock a file when in use by a process and deny any attempt at deletion
-    //Not required on linux because there is a queue for actions while a process has a lock on the file and it will just exec afterwards
+    //Not required on linux because there is a queue for actions while a process has a lock on the file and it will just exec afterward
     Thread.sleep(2000)
 
     val fileList = mutableListOf<File>()
@@ -94,12 +97,14 @@ fun openVault(vaultName: String, password: String): List<File> {
             directory.listFiles()?.forEach { file ->
 
                 //The way the windows kernel handles file locks means that if there is a request to delete the file while a process is still accessing the file it will deny
-                //Whereas linux will add this to queue to be executed once the file has been freed up. Hence this will help mask that issue on windows computers. It only applies
-                //To decryption so it is safe just a visual nuisance
+                //Whereas linux will add this to queue to be executed once the file has been freed up. Hence, this will help mask that issue on Windows computers. It only applies
+                //To decryption, so it is safe just a visual nuisance
                 if (!file.name.contains("gpg")) {
                     fileList.add(file)
                 }
             }
+
+
             return fileList
         } catch (e: Exception) {
             println(e.printStackTrace())
@@ -180,6 +185,18 @@ fun isVaultEmpty(vaultName: String): Boolean {
     return vaultList.isEmpty()
 }
 
+fun getFileCount(vaultName: String): Int {
+    val vault =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName").toPath()
+    var fileCount = 0
+    for (file in vault) {
+        if (!file.isDirectory()) {
+            fileCount++
+        }
+    }
+    return fileCount
+}
+
 fun openVaultInExplorer(vaultName: String) {
     val vaultPath =
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
@@ -193,5 +210,15 @@ fun openFile(vaultName: String, fileName: String) {
         File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName/$fileName")
     if (Desktop.isDesktopSupported()) {
         Desktop.getDesktop().open(File(filePath.absolutePath))
+    }
+}
+
+//Going to try this function to deal with the snagglers that get left on windows when deletion isn't possible
+fun deleteAllDoubleFiles(vaultName: String) {
+    val vault =
+        File(System.getProperty(Enums.HOME_DIR.value) + Enums.APP_DIRECTORY.value + Enums.VAULTS_DIR.value + "/$vaultName")
+    if (!isDirectoryEncryptedTest(vaultName)) {
+        Files.walk(vault.toPath()).filter { file -> file.name.endsWith(".gpg") }
+            .forEach { file -> Files.deleteIfExists(file) }
     }
 }
