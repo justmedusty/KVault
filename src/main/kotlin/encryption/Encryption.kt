@@ -1,6 +1,5 @@
 package encryption
 
-import fileio.deleteAllDoubleFiles
 import fileio.storeKeyPair
 import org.bouncycastle.openpgp.PGPSecretKeyRing
 import org.bouncycastle.util.io.Streams
@@ -91,13 +90,15 @@ fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphr
                 val options = ConsumerOptions().addDecryptionKey(secretKey, secretKeyProtector)
 
                 val encryptedInputStream = file.inputStream()
-                val decryptionStream: DecryptionStream =
-                    PGPainless.decryptAndOrVerify().onInputStream(encryptedInputStream).withOptions(options)
+                encryptedInputStream.use { inputStream ->
+                    val decryptionStream: DecryptionStream =
+                        PGPainless.decryptAndOrVerify().onInputStream(inputStream).withOptions(options)
 
-                val outputStream = decryptedFile.outputStream()
-                Streams.pipeAll(decryptionStream, outputStream)
-                decryptionStream.close()
-                outputStream.close()
+                    val outputStream = decryptedFile.outputStream()
+                    outputStream.use { _ ->
+                        Streams.pipeAll(decryptionStream, outputStream)
+                    }
+                }
                 file.inputStream().close()
                 with(file) {
                     if (!delete()) {
