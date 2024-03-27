@@ -85,7 +85,6 @@ fun openVault(vaultName: String, password: String): List<File> {
 
     //This Thread.sleep is required because motherfucking microsoft likes to completely lock a file when in use by a process and deny any attempt at deletion
     //Not required on linux because there is a queue for actions while a process has a lock on the file and it will just exec afterward
-    Thread.sleep(2000)
 
     val fileList = mutableListOf<File>()
     val directory =
@@ -96,12 +95,8 @@ fun openVault(vaultName: String, password: String): List<File> {
             decryptDirectory(directory.toString(), privateKey, password)
             directory.listFiles()?.forEach { file ->
 
-                //The way the windows kernel handles file locks means that if there is a request to delete the file while a process is still accessing the file it will deny
-                //Whereas linux will add this to queue to be executed once the file has been freed up. Hence, this will help mask that issue on Windows computers. It only applies
-                //To decryption, so it is safe just a visual nuisance
-                if (!file.name.contains("gpg")) {
                     fileList.add(file)
-                }
+
             }
 
 

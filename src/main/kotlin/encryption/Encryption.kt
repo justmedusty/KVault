@@ -72,7 +72,6 @@ fun encryptDirectory(directoryPath: String, privateKey: PGPSecretKeyRing, passph
 
 
 fun decryptDirectory(directoryPath: String, secretKey: PGPSecretKeyRing, passphrase: String) {
-    Thread.sleep(500)
     val directory = Paths.get(directoryPath)
     val files = Files.walk(directory).filter { Files.isRegularFile(it) }.map { it.toFile() }.toList()
 
