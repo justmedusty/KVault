@@ -45,7 +45,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KVault"
-            packageVersion = "1.0.1"
+            packageVersion = "1.1.0"
             description = "A multiplatform encrypted vault application"
             licenseFile.set(project.file("gpl-3.0.txt"))
             modules("java.instrument", "java.naming", "java.sql", "jdk.unsupported")
